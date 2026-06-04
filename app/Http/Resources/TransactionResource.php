@@ -24,12 +24,11 @@ class TransactionResource extends JsonResource
             'fee_amount' => (float) $this->fee_amount,
             'fee_coin' => $this->fee_coin,
             'executed_at' => $this->executed_at?->toIso8601String(),
-            'executed_at_label' => $this->executed_at?->timezone('UTC')->format('d M Y H:i').' UTC',
+            'executed_at_label' => $this->executed_at?->timezone('UTC')->format('d M Y H:i') . ' UTC',
             'notes' => $this->notes,
             'is_analyzed' => (bool) $this->analysisGroupAssignment?->analysis_group_id,
-            'analysis_group' => $this->whenLoaded('analysisGroupAssignment', fn () => $this->analysisGroupAssignment?->analysisGroup ? [
-                'id' => $this->analysisGroupAssignment->analysisGroup->id,
-                'name' => $this->analysisGroupAssignment->analysisGroup->name,
+            'analysis_group' => $this->whenLoaded('analysisGroupAssignment', fn() => $this->analysisGroupAssignment?->analysisGroup ? [
+                'key' => $this->analysisGroupAssignment->analysisGroup->key_analysis_group,
             ] : null),
         ];
     }

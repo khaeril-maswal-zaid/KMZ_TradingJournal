@@ -35,7 +35,7 @@ class TransactionController extends Controller
         $query->orderBy(in_array($sort, $allowedSorts, true) ? $sort : 'executed_at', $direction);
 
         return Inertia::render('transactions/index', [
-            'transactions' => TransactionResource::collection($query->paginate(12)->withQueryString()),
+            'transactions' => TransactionResource::collection($query->paginate(20)->withQueryString()),
             'filters' => [
                 'search' => $request->string('search')->toString(),
                 'type' => $request->string('type')->toString() ?: 'ALL',

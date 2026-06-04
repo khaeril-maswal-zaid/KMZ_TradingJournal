@@ -17,8 +17,7 @@ export type Transaction = {
     notes: string | null;
     is_analyzed: boolean;
     analysis_group?: {
-        id: number;
-        name: string;
+        key: string;
     } | null;
 };
 

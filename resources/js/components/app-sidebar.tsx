@@ -1,9 +1,13 @@
 import { Link } from '@inertiajs/react';
 import {
     BarChart3,
+    ChartCandlestick,
+    ClipboardList,
     FileSpreadsheet,
     LayoutDashboard,
     LineChart,
+    ReceiptText,
+    Wallet,
 } from 'lucide-react';
 import AppLogo from '@/components/app-logo';
 import { NavMain } from '@/components/nav-main';
@@ -30,17 +34,22 @@ const mainNavItems: NavItem[] = [
     {
         title: 'Transaksi',
         href: '/transactions',
-        icon: FileSpreadsheet,
-    },
-    {
-        title: 'Import Data',
-        href: '/transactions/import',
-        icon: BarChart3,
+        icon: ReceiptText,
     },
     {
         title: 'Analisa Trading',
         href: '/analysis-groups',
-        icon: LineChart,
+        icon: ChartCandlestick,
+    },
+    {
+        title: 'Deposit',
+        href: '/deposits',
+        icon: Wallet,
+    },
+    {
+        title: 'Rencana Trading',
+        href: '/trading-plans',
+        icon: ClipboardList,
     },
 ];
 

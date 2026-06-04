@@ -203,7 +203,7 @@ export default function AnalysisGroupsIndex({
                         <Table>
                             <TableHeader>
                                 <TableRow>
-                                    <TableHead>Key uuid</TableHead>
+                                    <TableHead>Key Analisa Trading</TableHead>
                                     <TableHead className="text-right">
                                         Total Buy
                                     </TableHead>

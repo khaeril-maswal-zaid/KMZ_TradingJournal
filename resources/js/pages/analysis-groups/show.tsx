@@ -340,19 +340,77 @@ export default function AnalysisGroupShow({
                                 Riwayat BUY
                             </CardTitle>
                         </CardHeader>
-                        <CardContent className="grid gap-3">
+                        <CardContent>
                             {buyTransactions.data.length === 0 ? (
                                 <div className="rounded-lg border border-dashed p-8 text-center text-sm text-muted-foreground">
                                     Belum ada transaksi BUY di grup ini.
                                 </div>
                             ) : (
-                                buyTransactions.data.map((transaction) => (
-                                    <TransactionCard
-                                        key={transaction.id}
-                                        transaction={transaction}
-                                        onRemove={detach}
-                                    />
-                                ))
+                                <div className="overflow-hidden rounded-lg border">
+                                    <Table>
+                                        <TableHeader className="bg-muted/50">
+                                            <TableRow className="border-b hover:bg-muted/50">
+                                                <TableHead className="text-xs font-semibold">
+                                                    Tanggal
+                                                </TableHead>
+                                                <TableHead className="text-xs font-semibold">
+                                                    Pair
+                                                </TableHead>
+                                                <TableHead className="text-xs font-semibold">
+                                                    Jumlah
+                                                </TableHead>
+                                                <TableHead className="text-right text-xs font-semibold">
+                                                    Total
+                                                </TableHead>
+                                                <TableHead className="w-8" />
+                                            </TableRow>
+                                        </TableHeader>
+                                        <TableBody>
+                                            {buyTransactions.data.map(
+                                                (transaction) => (
+                                                    <TableRow
+                                                        key={transaction.id}
+                                                        className="hover:bg-muted/30"
+                                                    >
+                                                        <TableCell className="text-xs text-muted-foreground">
+                                                            {
+                                                                transaction.executed_at_label
+                                                            }
+                                                        </TableCell>
+                                                        <TableCell className="text-xs font-medium">
+                                                            {transaction.pair}
+                                                        </TableCell>
+                                                        <TableCell className="text-xs tabular-nums">
+                                                            {formatCrypto(
+                                                                transaction.amount,
+                                                            )}
+                                                        </TableCell>
+                                                        <TableCell className="text-right text-xs font-medium tabular-nums">
+                                                            {formatMoney(
+                                                                transaction.total,
+                                                                transaction.quote_asset,
+                                                            )}
+                                                        </TableCell>
+                                                        <TableCell>
+                                                            <Button
+                                                                variant="ghost"
+                                                                size="sm"
+                                                                className="h-6 w-6 p-0 text-destructive hover:text-destructive"
+                                                                onClick={() =>
+                                                                    detach(
+                                                                        transaction,
+                                                                    )
+                                                                }
+                                                            >
+                                                                <Trash2 className="size-3" />
+                                                            </Button>
+                                                        </TableCell>
+                                                    </TableRow>
+                                                ),
+                                            )}
+                                        </TableBody>
+                                    </Table>
+                                </div>
                             )}
                         </CardContent>
                     </Card>
@@ -363,19 +421,77 @@ export default function AnalysisGroupShow({
                                 Riwayat SELL
                             </CardTitle>
                         </CardHeader>
-                        <CardContent className="grid gap-3">
+                        <CardContent>
                             {sellTransactions.data.length === 0 ? (
                                 <div className="rounded-lg border border-dashed p-8 text-center text-sm text-muted-foreground">
                                     Belum ada transaksi SELL di grup ini.
                                 </div>
                             ) : (
-                                sellTransactions.data.map((transaction) => (
-                                    <TransactionCard
-                                        key={transaction.id}
-                                        transaction={transaction}
-                                        onRemove={detach}
-                                    />
-                                ))
+                                <div className="overflow-hidden rounded-lg border">
+                                    <Table>
+                                        <TableHeader className="bg-muted/50">
+                                            <TableRow className="border-b hover:bg-muted/50">
+                                                <TableHead className="text-xs font-semibold">
+                                                    Tanggal
+                                                </TableHead>
+                                                <TableHead className="text-xs font-semibold">
+                                                    Pair
+                                                </TableHead>
+                                                <TableHead className="text-xs font-semibold">
+                                                    Jumlah
+                                                </TableHead>
+                                                <TableHead className="text-right text-xs font-semibold">
+                                                    Total
+                                                </TableHead>
+                                                <TableHead className="w-8" />
+                                            </TableRow>
+                                        </TableHeader>
+                                        <TableBody>
+                                            {sellTransactions.data.map(
+                                                (transaction) => (
+                                                    <TableRow
+                                                        key={transaction.id}
+                                                        className="hover:bg-muted/30"
+                                                    >
+                                                        <TableCell className="text-xs text-muted-foreground">
+                                                            {
+                                                                transaction.executed_at_label
+                                                            }
+                                                        </TableCell>
+                                                        <TableCell className="text-xs font-medium">
+                                                            {transaction.pair}
+                                                        </TableCell>
+                                                        <TableCell className="text-xs tabular-nums">
+                                                            {formatCrypto(
+                                                                transaction.amount,
+                                                            )}
+                                                        </TableCell>
+                                                        <TableCell className="text-right text-xs font-medium tabular-nums">
+                                                            {formatMoney(
+                                                                transaction.total,
+                                                                transaction.quote_asset,
+                                                            )}
+                                                        </TableCell>
+                                                        <TableCell>
+                                                            <Button
+                                                                variant="ghost"
+                                                                size="sm"
+                                                                className="h-6 w-6 p-0 text-destructive hover:text-destructive"
+                                                                onClick={() =>
+                                                                    detach(
+                                                                        transaction,
+                                                                    )
+                                                                }
+                                                            >
+                                                                <Trash2 className="size-3" />
+                                                            </Button>
+                                                        </TableCell>
+                                                    </TableRow>
+                                                ),
+                                            )}
+                                        </TableBody>
+                                    </Table>
+                                </div>
                             )}
                         </CardContent>
                     </Card>

@@ -61,8 +61,6 @@ function paginationLabel(label: string): string {
 export default function TransactionsIndex({ transactions, filters }: Props) {
     const [search, setSearch] = useState(filters.search);
 
-    console.log(transactions);
-
     const visit = (nextFilters: Partial<Filters>): void => {
         const merged = { ...filters, ...nextFilters };
 
@@ -181,6 +179,7 @@ export default function TransactionsIndex({ transactions, filters }: Props) {
                             <TableHeader>
                                 <TableRow>
                                     {[
+                                        ['No', 'id'],
                                         ['Tanggal', 'executed_at'],
                                         ['Pair', 'pair'],
                                         ['Tipe', 'type'],
@@ -235,94 +234,107 @@ export default function TransactionsIndex({ transactions, filters }: Props) {
                                         </TableCell>
                                     </TableRow>
                                 ) : (
-                                    transactions.data.map((transaction) => (
-                                        <TableRow key={transaction.id}>
-                                            <TableCell className="text-muted-foreground">
-                                                {transaction.executed_at_label}
-                                            </TableCell>
-                                            <TableCell className="font-medium">
-                                                {transaction.pair}
-                                            </TableCell>
-                                            <TableCell>
-                                                <TransactionTypeBadge
-                                                    type={transaction.type}
-                                                />
-                                            </TableCell>
-                                            <TableCell className="text-right tabular-nums">
-                                                {formatMoney(
-                                                    transaction.price,
-                                                    transaction.quote_asset,
-                                                )}
-                                            </TableCell>
-                                            <TableCell className="text-right tabular-nums">
-                                                {formatCrypto(
-                                                    transaction.amount,
-                                                )}
-                                            </TableCell>
-                                            <TableCell className="text-right tabular-nums">
-                                                {formatMoney(
-                                                    transaction.total,
-                                                    transaction.quote_asset,
-                                                )}
-                                            </TableCell>
-                                            <TableCell>
-                                                {formatCrypto(
-                                                    transaction.fee_amount,
-                                                )}{' '}
-                                                {transaction.fee_coin ?? '-'}
-                                            </TableCell>
-                                            <TableCell>
-                                                <Badge
-                                                    variant="outline"
-                                                    className={
-                                                        transaction.is_analyzed
-                                                            ? 'border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-900/60 dark:bg-emerald-950/40 dark:text-emerald-300'
-                                                            : ''
+                                    transactions.data.map(
+                                        (transaction, index) => (
+                                            <TableRow
+                                                key={transaction.id}
+                                                className="h-10"
+                                            >
+                                                <TableCell className="py-0 text-xs">
+                                                    {index + 1}
+                                                </TableCell>
+                                                <TableCell className="py-0 text-xs text-muted-foreground">
+                                                    {
+                                                        transaction.executed_at_label
                                                     }
-                                                >
-                                                    {transaction.is_analyzed
-                                                        ? 'Sudah Dianalisa'
-                                                        : 'Belum Dianalisa'}
-                                                </Badge>
-                                            </TableCell>
-                                            <TableCell>
-                                                <DropdownMenu>
-                                                    <DropdownMenuTrigger
-                                                        asChild
+                                                </TableCell>
+                                                <TableCell className="py-0 text-xs text-muted-foreground">
+                                                    {transaction.pair}
+                                                </TableCell>
+                                                <TableCell className="py-0 text-xs">
+                                                    <TransactionTypeBadge
+                                                        type={transaction.type}
+                                                    />
+                                                </TableCell>
+                                                <TableCell className="py-0 text-right text-xs tabular-nums">
+                                                    {formatMoney(
+                                                        transaction.price,
+                                                        transaction.quote_asset,
+                                                    )}
+                                                </TableCell>
+                                                <TableCell className="py-0 text-right text-xs tabular-nums">
+                                                    {formatCrypto(
+                                                        transaction.amount,
+                                                    )}
+                                                </TableCell>
+                                                <TableCell className="py-0 text-right text-xs tabular-nums">
+                                                    {formatMoney(
+                                                        transaction.total,
+                                                        transaction.quote_asset,
+                                                    )}
+                                                </TableCell>
+                                                <TableCell className="py-0 text-xs text-muted-foreground">
+                                                    {formatCrypto(
+                                                        transaction.fee_amount,
+                                                    )}{' '}
+                                                    {transaction.fee_coin ??
+                                                        '-'}
+                                                </TableCell>
+                                                <TableCell className="py-0 text-xs">
+                                                    <Badge
+                                                        variant="outline"
+                                                        className={
+                                                            transaction.is_analyzed
+                                                                ? 'border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-900/60 dark:bg-emerald-950/40 dark:text-emerald-300'
+                                                                : ''
+                                                        }
                                                     >
-                                                        <Button
-                                                            variant="ghost"
-                                                            size="icon"
+                                                        {transaction.is_analyzed
+                                                            ? 'Sudah Dianalisa'
+                                                            : 'Belum Dianalisa'}
+                                                    </Badge>
+                                                </TableCell>
+                                                <TableCell className="py-0 text-right">
+                                                    <DropdownMenu>
+                                                        <DropdownMenuTrigger
+                                                            asChild
                                                         >
-                                                            <MoreHorizontal className="size-4" />
-                                                        </Button>
-                                                    </DropdownMenuTrigger>
-                                                    <DropdownMenuContent align="end">
-                                                        {transaction.analysis_group ? (
-                                                            <DropdownMenuItem
-                                                                asChild
+                                                            <Button
+                                                                variant="ghost"
+                                                                size="icon"
                                                             >
-                                                                <Link
-                                                                    href={`/analysis-groups/${transaction.analysis_group.id}`}
+                                                                <MoreHorizontal className="size-4" />
+                                                            </Button>
+                                                        </DropdownMenuTrigger>
+                                                        <DropdownMenuContent align="end">
+                                                            {transaction.analysis_group ? (
+                                                                <DropdownMenuItem
+                                                                    asChild
                                                                 >
-                                                                    Buka Analisa
-                                                                </Link>
-                                                            </DropdownMenuItem>
-                                                        ) : (
-                                                            <DropdownMenuItem
-                                                                asChild
-                                                            >
-                                                                <Link href="/analysis-groups">
-                                                                    Masukkan ke
-                                                                    Analisa
-                                                                </Link>
-                                                            </DropdownMenuItem>
-                                                        )}
-                                                    </DropdownMenuContent>
-                                                </DropdownMenu>
-                                            </TableCell>
-                                        </TableRow>
-                                    ))
+                                                                    <Link
+                                                                        href={`/analysis-groups/${transaction.analysis_group.key}`}
+                                                                    >
+                                                                        Buka
+                                                                        Analisa
+                                                                    </Link>
+                                                                </DropdownMenuItem>
+                                                            ) : (
+                                                                <DropdownMenuItem
+                                                                    asChild
+                                                                >
+                                                                    <Link href="/analysis-groups">
+                                                                        Masukkan
+                                                                        ke
+                                                                        Analisa
+                                                                    </Link>
+                                                                </DropdownMenuItem>
+                                                            )}
+                                                        </DropdownMenuContent>
+                                                    </DropdownMenu>
+                                                </TableCell>
+                                            </TableRow>
+                                        ),
+                                    )
                                 )}
                             </TableBody>
                         </Table>
