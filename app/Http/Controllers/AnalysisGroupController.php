@@ -38,7 +38,7 @@ class AnalysisGroupController extends Controller
 
     public function store(StoreAnalysisGroupRequest $request, AnalysisGroupCalculationService $calculator): RedirectResponse
     {
-        $group = AnalysisGroup::create($request->safe()->only(['name', 'description']));
+        $group = AnalysisGroup::create($request->validated());
 
         if ($request->filled('transaction_ids')) {
             $this->attachTransactions($group, $request->validated('transaction_ids'));
@@ -54,7 +54,7 @@ class AnalysisGroupController extends Controller
     public function show(AnalysisGroup $analysisGroup, AnalysisGroupCalculationService $calculator): Response
     {
         $analysisGroup->load([
-            'transactions' => fn ($query) => $query->orderBy('executed_at'),
+            'transactions' => fn($query) => $query->orderBy('executed_at'),
         ])->loadCount('transactions');
 
         $buyTransactions = $analysisGroup->transactions->where('type', 'BUY')->values();
@@ -65,7 +65,7 @@ class AnalysisGroupController extends Controller
             'buyTransactions' => TransactionResource::collection($buyTransactions),
             'sellTransactions' => TransactionResource::collection($sellTransactions),
             'sellBreakdown' => collect($calculator->sellBreakdown((float) $analysisGroup->total_buy, $sellTransactions))
-                ->map(fn (array $item) => [
+                ->map(fn(array $item) => [
                     ...$item,
                     'transaction' => TransactionResource::make($item['transaction']),
                 ])

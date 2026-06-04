@@ -24,9 +24,9 @@ class TransactionController extends Controller
                         ->orWhere('quote_asset', 'like', "%{$search}%");
                 });
             })
-            ->when(in_array($request->string('type')->toString(), ['BUY', 'SELL'], true), fn ($query) => $query->where('type', $request->string('type')->toString()))
-            ->when($request->string('analysis')->toString() === 'analyzed', fn ($query) => $query->whereHas('analysisGroupAssignment'))
-            ->when($request->string('analysis')->toString() === 'unreviewed', fn ($query) => $query->doesntHave('analysisGroupAssignment'));
+            ->when(in_array($request->string('type')->toString(), ['BUY', 'SELL'], true), fn($query) => $query->where('type', $request->string('type')->toString()))
+            ->when($request->string('analysis')->toString() === 'analyzed', fn($query) => $query->whereHas('analysisGroupAssignment'))
+            ->when($request->string('analysis')->toString() === 'unreviewed', fn($query) => $query->doesntHave('analysisGroupAssignment'));
 
         $sort = $request->string('sort')->toString();
         $direction = $request->string('direction')->toString() === 'asc' ? 'asc' : 'desc';
@@ -57,7 +57,7 @@ class TransactionController extends Controller
 
         Inertia::flash('toast', [
             'type' => 'success',
-            'message' => $transactions->count().' transaksi berhasil diimport.',
+            'message' => $transactions->count() . ' transaksi berhasil diimport.',
         ]);
 
         return to_route('transactions.index');

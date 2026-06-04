@@ -165,7 +165,7 @@ export default function AnalysisGroupShow({
 
     return (
         <>
-            <Head title={analysis.name} />
+            <Head title={analysis.key} />
             <div className="flex flex-1 flex-col gap-6 p-4 md:p-6">
                 <div className="flex flex-col justify-between gap-4 lg:flex-row lg:items-end">
                     <div>
@@ -175,14 +175,9 @@ export default function AnalysisGroupShow({
                                 {analysis.transactions_count} transaksi
                             </Badge>
                         </div>
-                        <h1 className="text-2xl font-semibold tracking-normal md:text-3xl">
-                            {analysis.name}
+                        <h1 className="font-semibold tracking-normal">
+                            {analysis.key}
                         </h1>
-                        {analysis.description && (
-                            <p className="mt-1 text-sm text-muted-foreground">
-                                {analysis.description}
-                            </p>
-                        )}
                     </div>
                     <Dialog open={open} onOpenChange={setOpen}>
                         <DialogTrigger asChild>

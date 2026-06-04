@@ -42,22 +42,8 @@ export default function AnalysisGroupsIndex({
     availableTransactions,
 }: Props) {
     const [open, setOpen] = useState(false);
-    const [name, setName] = useState('');
-    const [description, setDescription] = useState('');
     const [selectedIds, setSelectedIds] = useState<number[]>([]);
-    const [search, setSearch] = useState('');
     const [processing, setProcessing] = useState(false);
-
-    const filteredTransactions = useMemo(() => {
-        const needle = search.toLowerCase();
-
-        return availableTransactions.data.filter(
-            (transaction) =>
-                transaction.pair.toLowerCase().includes(needle) ||
-                transaction.base_asset.toLowerCase().includes(needle) ||
-                transaction.quote_asset.toLowerCase().includes(needle),
-        );
-    }, [availableTransactions.data, search]);
 
     const toggleTransaction = (id: number): void => {
         setSelectedIds((current) =>
@@ -73,16 +59,12 @@ export default function AnalysisGroupsIndex({
         router.post(
             '/analysis-groups',
             {
-                name,
-                description,
                 transaction_ids: selectedIds,
             },
             {
                 preserveScroll: true,
                 onSuccess: () => {
                     setOpen(false);
-                    setName('');
-                    setDescription('');
                     setSelectedIds([]);
                 },
                 onFinish: () => setProcessing(false),
@@ -119,44 +101,7 @@ export default function AnalysisGroupsIndex({
                                     dalam satu analisa trading.
                                 </DialogDescription>
                             </DialogHeader>
-                            <div className="grid gap-4 md:grid-cols-2">
-                                <div className="space-y-3">
-                                    <Input
-                                        value={name}
-                                        onChange={(event) =>
-                                            setName(event.target.value)
-                                        }
-                                        placeholder="Nama analisa"
-                                    />
-                                    <Input
-                                        value={description}
-                                        onChange={(event) =>
-                                            setDescription(event.target.value)
-                                        }
-                                        placeholder="Deskripsi opsional"
-                                    />
-                                </div>
-                                <div className="rounded-lg border bg-muted/30 p-4 text-sm">
-                                    <p className="font-medium">
-                                        {selectedIds.length} transaksi dipilih
-                                    </p>
-                                    <p className="mt-1 text-muted-foreground">
-                                        Total grup dihitung otomatis setelah
-                                        analisa dibuat.
-                                    </p>
-                                </div>
-                            </div>
-                            <div className="relative">
-                                <Search className="pointer-events-none absolute top-2.5 left-3 size-4 text-muted-foreground" />
-                                <Input
-                                    value={search}
-                                    onChange={(event) =>
-                                        setSearch(event.target.value)
-                                    }
-                                    placeholder="Cari transaksi"
-                                    className="pl-9"
-                                />
-                            </div>
+
                             <div className="max-h-72 overflow-auto rounded-lg border">
                                 <Table>
                                     <TableHeader className="sticky top-0 bg-muted">
@@ -171,7 +116,8 @@ export default function AnalysisGroupsIndex({
                                         </TableRow>
                                     </TableHeader>
                                     <TableBody>
-                                        {filteredTransactions.length === 0 ? (
+                                        {availableTransactions.data.length ===
+                                        0 ? (
                                             <TableRow>
                                                 <TableCell
                                                     colSpan={5}
@@ -182,7 +128,7 @@ export default function AnalysisGroupsIndex({
                                                 </TableCell>
                                             </TableRow>
                                         ) : (
-                                            filteredTransactions.map(
+                                            availableTransactions.data.map(
                                                 (transaction) => (
                                                     <TableRow
                                                         key={transaction.id}
@@ -241,10 +187,7 @@ export default function AnalysisGroupsIndex({
                                 >
                                     Batal
                                 </Button>
-                                <Button
-                                    onClick={submit}
-                                    disabled={processing || !name.trim()}
-                                >
+                                <Button onClick={submit} disabled={processing}>
                                     {processing && (
                                         <Loader2 className="size-4 animate-spin" />
                                     )}
@@ -260,7 +203,7 @@ export default function AnalysisGroupsIndex({
                         <Table>
                             <TableHeader>
                                 <TableRow>
-                                    <TableHead>Nama Analisa</TableHead>
+                                    <TableHead>Key uuid</TableHead>
                                     <TableHead className="text-right">
                                         Total Buy
                                     </TableHead>
@@ -291,19 +234,14 @@ export default function AnalysisGroupsIndex({
                                     </TableRow>
                                 ) : (
                                     groups.data.map((group) => (
-                                        <TableRow key={group.id}>
+                                        <TableRow key={group.key}>
                                             <TableCell>
                                                 <Link
-                                                    href={`/analysis-groups/${group.id}`}
+                                                    href={`/analysis-groups/${group.key}`}
                                                     className="font-medium hover:underline"
                                                 >
-                                                    {group.name}
+                                                    {group.key}
                                                 </Link>
-                                                {group.description && (
-                                                    <p className="mt-1 max-w-md truncate text-xs text-muted-foreground">
-                                                        {group.description}
-                                                    </p>
-                                                )}
                                             </TableCell>
                                             <TableCell className="text-right tabular-nums">
                                                 {formatMoney(group.total_buy)}

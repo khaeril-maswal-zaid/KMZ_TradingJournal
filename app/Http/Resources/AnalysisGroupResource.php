@@ -14,8 +14,7 @@ class AnalysisGroupResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'name' => $this->name,
-            'description' => $this->description,
+            'key' => $this->key_analysis_group,
             'total_buy' => (float) $this->total_buy,
             'total_sell' => (float) $this->total_sell,
             'profit' => (float) $this->profit,

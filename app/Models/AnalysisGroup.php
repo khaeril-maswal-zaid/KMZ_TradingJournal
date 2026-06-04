@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Traits\HasUuid;
 use Database\Factories\AnalysisGroupFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -12,10 +13,10 @@ class AnalysisGroup extends Model
 {
     /** @use HasFactory<AnalysisGroupFactory> */
     use HasFactory;
+    use HasUuid;
 
     protected $fillable = [
-        'name',
-        'description',
+        'key_analysis_group',
         'total_buy',
         'total_sell',
         'profit',

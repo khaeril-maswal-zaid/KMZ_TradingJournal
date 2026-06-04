@@ -64,9 +64,6 @@ export function AppSidebar() {
             </SidebarContent>
 
             <SidebarFooter>
-                <div className="px-2 group-data-[collapsible=icon]:hidden">
-                    <AppearanceToggleTab className="w-full justify-between" />
-                </div>
                 <NavUser />
             </SidebarFooter>
         </Sidebar>

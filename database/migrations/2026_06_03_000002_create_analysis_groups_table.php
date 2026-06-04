@@ -13,8 +13,7 @@ return new class extends Migration
     {
         Schema::create('analysis_groups', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
-            $table->text('description')->nullable();
+            $table->uuid('key_analysis_group')->unique();
             $table->decimal('total_buy', 24, 10)->default(0);
             $table->decimal('total_sell', 24, 10)->default(0);
             $table->decimal('profit', 24, 10)->default(0);

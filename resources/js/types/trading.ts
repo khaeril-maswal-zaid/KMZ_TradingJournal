@@ -24,8 +24,7 @@ export type Transaction = {
 
 export type AnalysisGroup = {
     id: number;
-    name: string;
-    description: string | null;
+    key: string;
     total_buy: number;
     total_sell: number;
     profit: number;

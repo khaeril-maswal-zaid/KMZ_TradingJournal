@@ -23,17 +23,17 @@ class DatabaseSeeder extends Seeder
             'email' => 'demo@example.com',
         ]);
 
-        $transactions = Transaction::factory(36)->create();
-        $calculator = app(AnalysisGroupCalculationService::class);
+        // $transactions = Transaction::factory(36)->create();
+        // $calculator = app(AnalysisGroupCalculationService::class);
 
-        collect([
-            ['name' => 'BTC Scalping Juni', 'description' => 'Analisa scalping BTC dengan beberapa entry dan exit.'],
-            ['name' => 'ETH Swing Trade', 'description' => 'Tracking modal dan hasil jual ETH.'],
-            ['name' => 'SOL Breakout', 'description' => 'Eksperimen breakout SOL setelah konfirmasi volume.'],
-        ])->each(function (array $payload, int $index) use ($transactions, $calculator): void {
-            $group = AnalysisGroup::create($payload);
-            $group->transactions()->attach($transactions->slice($index * 8, 8)->pluck('id')->all());
-            $calculator->recalculate($group);
-        });
+        // collect([
+        //     ['name' => 'BTC Scalping Juni', 'description' => 'Analisa scalping BTC dengan beberapa entry dan exit.'],
+        //     ['name' => 'ETH Swing Trade', 'description' => 'Tracking modal dan hasil jual ETH.'],
+        //     ['name' => 'SOL Breakout', 'description' => 'Eksperimen breakout SOL setelah konfirmasi volume.'],
+        // ])->each(function (array $payload, int $index) use ($transactions, $calculator): void {
+        //     $group = AnalysisGroup::create($payload);
+        //     $group->transactions()->attach($transactions->slice($index * 8, 8)->pluck('id')->all());
+        //     $calculator->recalculate($group);
+        // });
     }
 }

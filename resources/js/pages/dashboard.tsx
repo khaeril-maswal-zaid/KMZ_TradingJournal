@@ -10,7 +10,6 @@ import {
 } from 'lucide-react';
 import { ProfitBadge } from '@/components/trading/profit-badge';
 import { ProfitCard } from '@/components/trading/profit-card';
-import { TransactionTypeBadge } from '@/components/trading/transaction-type-badge';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -25,6 +24,7 @@ import {
 import { formatCrypto, formatMoney, formatPercent } from '@/lib/trading';
 import { dashboard } from '@/routes';
 import type { AnalysisGroup, ResourceCollection, Transaction } from '@/types';
+import { TransactionTypeBadge } from '@/components/trading/transaction-type-badge';
 
 type DashboardProps = {
     stats: {
