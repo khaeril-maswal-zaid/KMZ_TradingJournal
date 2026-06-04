@@ -1,9 +1,14 @@
 import { Link } from '@inertiajs/react';
-import { BookOpen, FolderGit2, LayoutGrid } from 'lucide-react';
+import {
+    BarChart3,
+    FileSpreadsheet,
+    LayoutDashboard,
+    LineChart,
+} from 'lucide-react';
 import AppLogo from '@/components/app-logo';
-import { NavFooter } from '@/components/nav-footer';
 import { NavMain } from '@/components/nav-main';
 import { NavUser } from '@/components/nav-user';
+import AppearanceToggleTab from '@/components/appearance-tabs';
 import {
     Sidebar,
     SidebarContent,
@@ -20,20 +25,22 @@ const mainNavItems: NavItem[] = [
     {
         title: 'Dashboard',
         href: dashboard(),
-        icon: LayoutGrid,
-    },
-];
-
-const footerNavItems: NavItem[] = [
-    {
-        title: 'Repository',
-        href: 'https://github.com/laravel/react-starter-kit',
-        icon: FolderGit2,
+        icon: LayoutDashboard,
     },
     {
-        title: 'Documentation',
-        href: 'https://laravel.com/docs/starter-kits#react',
-        icon: BookOpen,
+        title: 'Transaksi',
+        href: '/transactions',
+        icon: FileSpreadsheet,
+    },
+    {
+        title: 'Import Data',
+        href: '/transactions/import',
+        icon: BarChart3,
+    },
+    {
+        title: 'Analisa Trading',
+        href: '/analysis-groups',
+        icon: LineChart,
     },
 ];
 
@@ -57,7 +64,9 @@ export function AppSidebar() {
             </SidebarContent>
 
             <SidebarFooter>
-                <NavFooter items={footerNavItems} className="mt-auto" />
+                <div className="px-2 group-data-[collapsible=icon]:hidden">
+                    <AppearanceToggleTab className="w-full justify-between" />
+                </div>
                 <NavUser />
             </SidebarFooter>
         </Sidebar>

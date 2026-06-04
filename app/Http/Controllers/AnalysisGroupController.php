@@ -1,0 +1,122 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Http\Requests\AttachAnalysisGroupTransactionsRequest;
+use App\Http\Requests\StoreAnalysisGroupRequest;
+use App\Http\Resources\AnalysisGroupResource;
+use App\Http\Resources\TransactionResource;
+use App\Models\AnalysisGroup;
+use App\Models\AnalysisGroupTransaction;
+use App\Models\Transaction;
+use App\Services\AnalysisGroupCalculationService;
+use Illuminate\Database\QueryException;
+use Illuminate\Http\RedirectResponse;
+use Inertia\Inertia;
+use Inertia\Response;
+
+class AnalysisGroupController extends Controller
+{
+    public function index(): Response
+    {
+        return Inertia::render('analysis-groups/index', [
+            'groups' => AnalysisGroupResource::collection(
+                AnalysisGroup::query()
+                    ->withCount('transactions')
+                    ->latest()
+                    ->paginate(12)
+            ),
+            'availableTransactions' => TransactionResource::collection(
+                Transaction::query()
+                    ->doesntHave('analysisGroupAssignment')
+                    ->latest('executed_at')
+                    ->limit(20)
+                    ->get()
+            ),
+        ]);
+    }
+
+    public function store(StoreAnalysisGroupRequest $request, AnalysisGroupCalculationService $calculator): RedirectResponse
+    {
+        $group = AnalysisGroup::create($request->safe()->only(['name', 'description']));
+
+        if ($request->filled('transaction_ids')) {
+            $this->attachTransactions($group, $request->validated('transaction_ids'));
+        }
+
+        $calculator->recalculate($group);
+
+        Inertia::flash('toast', ['type' => 'success', 'message' => 'Grup analisa berhasil dibuat.']);
+
+        return to_route('analysis-groups.show', $group);
+    }
+
+    public function show(AnalysisGroup $analysisGroup, AnalysisGroupCalculationService $calculator): Response
+    {
+        $analysisGroup->load([
+            'transactions' => fn ($query) => $query->orderBy('executed_at'),
+        ])->loadCount('transactions');
+
+        $buyTransactions = $analysisGroup->transactions->where('type', 'BUY')->values();
+        $sellTransactions = $analysisGroup->transactions->where('type', 'SELL')->values();
+
+        return Inertia::render('analysis-groups/show', [
+            'group' => AnalysisGroupResource::make($analysisGroup),
+            'buyTransactions' => TransactionResource::collection($buyTransactions),
+            'sellTransactions' => TransactionResource::collection($sellTransactions),
+            'sellBreakdown' => collect($calculator->sellBreakdown((float) $analysisGroup->total_buy, $sellTransactions))
+                ->map(fn (array $item) => [
+                    ...$item,
+                    'transaction' => TransactionResource::make($item['transaction']),
+                ])
+                ->values(),
+            'availableTransactions' => TransactionResource::collection(
+                Transaction::query()
+                    ->with('analysisGroupAssignment.analysisGroup')
+                    ->latest('executed_at')
+                    ->limit(80)
+                    ->get()
+            ),
+        ]);
+    }
+
+    public function attach(AnalysisGroup $analysisGroup, AttachAnalysisGroupTransactionsRequest $request, AnalysisGroupCalculationService $calculator): RedirectResponse
+    {
+        try {
+            $this->attachTransactions($analysisGroup, $request->validated('transaction_ids'));
+        } catch (QueryException) {
+            Inertia::flash('toast', ['type' => 'error', 'message' => 'Transaksi sudah masuk ke grup analisa lain.']);
+
+            return back();
+        }
+
+        $calculator->recalculate($analysisGroup);
+
+        Inertia::flash('toast', ['type' => 'success', 'message' => 'Transaksi berhasil dimasukkan ke grup analisa.']);
+
+        return back();
+    }
+
+    public function detach(AnalysisGroup $analysisGroup, Transaction $transaction, AnalysisGroupCalculationService $calculator): RedirectResponse
+    {
+        $analysisGroup->transactions()->detach($transaction->id);
+        $calculator->recalculate($analysisGroup);
+
+        Inertia::flash('toast', ['type' => 'success', 'message' => 'Transaksi berhasil dihapus dari grup analisa.']);
+
+        return back();
+    }
+
+    /**
+     * @param  array<int, int>  $transactionIds
+     */
+    private function attachTransactions(AnalysisGroup $analysisGroup, array $transactionIds): void
+    {
+        foreach (array_unique($transactionIds) as $transactionId) {
+            AnalysisGroupTransaction::create([
+                'analysis_group_id' => $analysisGroup->id,
+                'transaction_id' => $transactionId,
+            ]);
+        }
+    }
+}
