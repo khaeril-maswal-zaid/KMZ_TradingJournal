@@ -12,8 +12,8 @@ class AnalysisGroupCalculationService
     {
         $transactions = $analysisGroup->transactions()->get(['transactions.id', 'type', 'total']);
 
-        $totalBuy = (float) $transactions->where('type', 'BUY')->sum(fn (Transaction $transaction) => (float) $transaction->total);
-        $totalSell = (float) $transactions->where('type', 'SELL')->sum(fn (Transaction $transaction) => (float) $transaction->total);
+        $totalBuy = (float) $transactions->where('type', 'BUY')->sum(fn(Transaction $transaction) => (float) $transaction->total);
+        $totalSell = (float) $transactions->where('type', 'SELL')->sum(fn(Transaction $transaction) => (float) $transaction->total);
         $profit = $totalSell - $totalBuy;
         $roiPercent = $totalBuy > 0 ? ($profit / $totalBuy) * 100 : 0;
 
@@ -26,6 +26,24 @@ class AnalysisGroupCalculationService
         ])->save();
 
         return $analysisGroup->refresh();
+    }
+
+    /**
+     * @param  Collection<int, Transaction>  $buyTransactions
+     * @return array<string, float>
+     */
+    public function sellPlannerSummary(Collection $buyTransactions): array
+    {
+        $totalAmount = (float) $buyTransactions->sum(fn(Transaction $transaction) => (float) $transaction->amount);
+        $totalCost = (float) $buyTransactions->sum(fn(Transaction $transaction) => (float) $transaction->total);
+
+        $average = $totalAmount > 0 ? $totalCost / $totalAmount : 0.0;
+
+        return [
+            'total_buy_amount' => $totalAmount,
+            'total_buy_cost' => $totalCost,
+            'average_buy_price' => $average,
+        ];
     }
 
     /**
@@ -42,7 +60,7 @@ class AnalysisGroupCalculationService
 
                 return [
                     'id' => $transaction->id,
-                    'label' => 'Hasil Penjualan '.($index + 1),
+                    'label' => 'Hasil Penjualan ' . ($index + 1),
                     'transaction' => $transaction,
                     'subtotal_buy' => $totalBuy,
                     'subtotal_sell' => $subtotalSell,

@@ -34,7 +34,9 @@ import {
 } from '@/components/ui/table';
 import { formatCrypto, formatMoney } from '@/lib/trading';
 import type { Paginated, Transaction } from '@/types';
-import { index } from '@/routes/transactions';
+import { index as indexTrans } from '@/routes/transactions';
+import { index as indexMatching } from '@/routes/tradematching';
+import { show } from '@/routes/tradematching';
 
 type Filters = {
     search: string;
@@ -66,7 +68,7 @@ export default function TransactionsIndex({ transactions, filters }: Props) {
         const merged = { ...filters, ...nextFilters };
 
         router.get(
-            index.url(),
+            indexTrans.url(),
             {
                 search: merged.search || undefined,
                 type: merged.type === 'ALL' ? undefined : merged.type,
@@ -313,7 +315,11 @@ export default function TransactionsIndex({ transactions, filters }: Props) {
                                                                     asChild
                                                                 >
                                                                     <Link
-                                                                        href={`/analysis-groups/${transaction.analysis_group.key}`}
+                                                                        href={show.url(
+                                                                            transaction
+                                                                                .analysis_group
+                                                                                .key,
+                                                                        )}
                                                                     >
                                                                         Buka
                                                                         Analisa
@@ -323,7 +329,9 @@ export default function TransactionsIndex({ transactions, filters }: Props) {
                                                                 <DropdownMenuItem
                                                                     asChild
                                                                 >
-                                                                    <Link href="/analysis-groups">
+                                                                    <Link
+                                                                        href={indexMatching.url()}
+                                                                    >
                                                                         Masukkan
                                                                         ke
                                                                         Analisa

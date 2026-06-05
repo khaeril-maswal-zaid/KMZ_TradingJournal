@@ -18,6 +18,16 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
 import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
+import {
     Dialog,
     DialogContent,
     DialogDescription,
@@ -50,6 +60,11 @@ type Props = {
     sellTransactions: ResourceCollection<Transaction>;
     sellBreakdown: SellBreakdown[];
     availableTransactions: ResourceCollection<Transaction>;
+    sellPlannerSummary: {
+        total_buy_amount: number;
+        total_buy_cost: number;
+        average_buy_price: number;
+    };
 };
 
 export default function AnalysisGroupShow({
@@ -58,11 +73,16 @@ export default function AnalysisGroupShow({
     sellTransactions,
     sellBreakdown,
     availableTransactions,
+    sellPlannerSummary,
 }: Props) {
     const analysis = group.data;
     const [open, setOpen] = useState(false);
+    const [planner, setPlanner] = useState(false);
     const [selectedIds, setSelectedIds] = useState<number[]>([]);
     const [processing, setProcessing] = useState(false);
+    const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+    const [transactionToDelete, setTransactionToDelete] =
+        useState<Transaction | null>(null);
 
     const selectedTotal = useMemo(
         () =>
@@ -108,9 +128,50 @@ export default function AnalysisGroupShow({
             }),
             {
                 preserveScroll: true,
+                onSuccess: () => {
+                    setDeleteConfirmOpen(false);
+                    setTransactionToDelete(null);
+                },
             },
         );
     };
+
+    const handleDeleteClick = (transaction: Transaction): void => {
+        setTransactionToDelete(transaction);
+        setDeleteConfirmOpen(true);
+    };
+
+    const { total_buy_amount, total_buy_cost, average_buy_price } =
+        sellPlannerSummary ?? {
+            total_buy_amount: 0,
+            total_buy_cost: 0,
+            average_buy_price: 0,
+        };
+
+    const [targetSellPrice, setTargetSellPrice] = useState<number>(
+        average_buy_price || 0,
+    );
+
+    const estimated = useMemo(() => {
+        const estimatedSellValue = total_buy_amount * targetSellPrice;
+        const estimatedProfit = estimatedSellValue - total_buy_cost;
+        const roi =
+            total_buy_cost > 0 ? (estimatedProfit / total_buy_cost) * 100 : 0;
+
+        return {
+            estimatedSellValue,
+            estimatedProfit,
+            roi,
+        };
+    }, [total_buy_amount, total_buy_cost, targetSellPrice]);
+
+    const handleConfirmDelete = (): void => {
+        if (transactionToDelete) {
+            detacher(transactionToDelete);
+        }
+    };
+
+    console.log(buyTransactions.data);
 
     return (
         <>
@@ -128,6 +189,105 @@ export default function AnalysisGroupShow({
                             {analysis.key}
                         </h1>
                     </div>
+
+                    <Dialog open={planner} onOpenChange={setPlanner}>
+                        <DialogTrigger asChild>
+                            <Button>
+                                <Plus className="size-4" />
+                                Sell Planner
+                            </Button>
+                        </DialogTrigger>
+                        <DialogContent className="sm:max-w-4xl">
+                            <DialogHeader>
+                                <DialogTitle>Sell Planner</DialogTitle>
+                                <DialogDescription>
+                                    Rencanakan hasil penjualan untuk transaksi
+                                    BUY yang sudah ada di grup ini.
+                                </DialogDescription>
+                            </DialogHeader>
+
+                            <div className="max-h-96 overflow-auto rounded-lg border"></div>
+                            <div className="space-y-4">
+                                <div className="grid gap-3 md:grid-cols-3">
+                                    <div className="rounded-lg border bg-card p-4">
+                                        <p className="text-sm text-muted-foreground">
+                                            Total Amount
+                                        </p>
+                                        <p className="mt-1 font-medium tabular-nums">
+                                            {formatCrypto(total_buy_amount)}
+                                        </p>
+                                    </div>
+                                    <div className="rounded-lg border bg-card p-4">
+                                        <p className="text-sm text-muted-foreground">
+                                            Average Buy Price
+                                        </p>
+                                        <p className="mt-1 font-medium tabular-nums">
+                                            {formatMoney(average_buy_price)}
+                                        </p>
+                                    </div>
+                                    <div className="rounded-lg border bg-card p-4">
+                                        <p className="text-sm text-muted-foreground">
+                                            Total Modal
+                                        </p>
+                                        <p className="mt-1 font-medium tabular-nums">
+                                            {formatMoney(total_buy_cost)}
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <div className="rounded-lg border bg-muted/30 p-4">
+                                    <label className="text-sm text-muted-foreground">
+                                        Target Sell Price
+                                    </label>
+                                    <div className="mt-1 flex items-center gap-2">
+                                        <input
+                                            type="number"
+                                            className="w-full rounded-md border p-2 text-right tabular-nums"
+                                            value={targetSellPrice}
+                                            onChange={(e) =>
+                                                setTargetSellPrice(
+                                                    Number(e.target.value),
+                                                )
+                                            }
+                                            step="0.00000001"
+                                        />
+                                    </div>
+                                </div>
+
+                                <div className="grid gap-3 md:grid-cols-3">
+                                    <div className="rounded-lg border bg-card p-4">
+                                        <p className="text-sm text-muted-foreground">
+                                            Estimated Sell Value
+                                        </p>
+                                        <p className="mt-1 font-medium tabular-nums">
+                                            {formatMoney(
+                                                estimated.estimatedSellValue,
+                                            )}
+                                        </p>
+                                    </div>
+                                    <div className="rounded-lg border bg-card p-4">
+                                        <p className="text-sm text-muted-foreground">
+                                            Estimated Profit
+                                        </p>
+                                        <p className="mt-1 font-medium tabular-nums">
+                                            {formatMoney(
+                                                estimated.estimatedProfit,
+                                            )}
+                                        </p>
+                                    </div>
+                                    <div className="rounded-lg border bg-card p-4">
+                                        <p className="text-sm text-muted-foreground">
+                                            ROI
+                                        </p>
+                                        <p className="mt-1 font-medium tabular-nums">
+                                            {formatPercent(estimated.roi)}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </DialogContent>
+                    </Dialog>
+
                     <Dialog open={open} onOpenChange={setOpen}>
                         <DialogTrigger asChild>
                             <Button>
@@ -313,6 +473,9 @@ export default function AnalysisGroupShow({
                                                     Pair
                                                 </TableHead>
                                                 <TableHead className="text-xs font-semibold">
+                                                    Harga
+                                                </TableHead>
+                                                <TableHead className="text-xs font-semibold">
                                                     Jumlah
                                                 </TableHead>
                                                 <TableHead className="text-right text-xs font-semibold">
@@ -336,10 +499,18 @@ export default function AnalysisGroupShow({
                                                         <TableCell className="text-xs font-medium">
                                                             {transaction.pair}
                                                         </TableCell>
+                                                        <TableCell className="text-xs font-medium">
+                                                            {formatMoney(
+                                                                transaction.price,
+                                                                transaction.quote_asset,
+                                                            )}
+                                                        </TableCell>
                                                         <TableCell className="text-xs tabular-nums">
                                                             {formatCrypto(
                                                                 transaction.amount,
-                                                            )}
+                                                            ) +
+                                                                ' ' +
+                                                                transaction.base_asset}
                                                         </TableCell>
                                                         <TableCell className="text-right text-xs font-medium tabular-nums">
                                                             {formatMoney(
@@ -353,7 +524,7 @@ export default function AnalysisGroupShow({
                                                                 size="sm"
                                                                 className="h-6 w-6 p-0 text-destructive hover:text-destructive"
                                                                 onClick={() =>
-                                                                    detacher(
+                                                                    handleDeleteClick(
                                                                         transaction,
                                                                     )
                                                                 }
@@ -434,7 +605,7 @@ export default function AnalysisGroupShow({
                                                                 size="sm"
                                                                 className="h-6 w-6 p-0 text-destructive hover:text-destructive"
                                                                 onClick={() =>
-                                                                    detacher(
+                                                                    handleDeleteClick(
                                                                         transaction,
                                                                     )
                                                                 }
@@ -534,6 +705,34 @@ export default function AnalysisGroupShow({
                         )}
                     </CardContent>
                 </Card>
+
+                <AlertDialog
+                    open={deleteConfirmOpen}
+                    onOpenChange={setDeleteConfirmOpen}
+                >
+                    <AlertDialogContent>
+                        <AlertDialogHeader>
+                            <AlertDialogTitle>Hapus Transaksi</AlertDialogTitle>
+                            <AlertDialogDescription>
+                                Apakah Anda yakin ingin menghapus transaksi{' '}
+                                <span className="font-semibold text-foreground">
+                                    {transactionToDelete?.pair}
+                                </span>
+                                ({transactionToDelete?.executed_at_label})?
+                                Tindakan ini tidak dapat dibatalkan.
+                            </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                            <AlertDialogCancel>Batal</AlertDialogCancel>
+                            <AlertDialogAction
+                                onClick={handleConfirmDelete}
+                                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                            >
+                                Hapus
+                            </AlertDialogAction>
+                        </AlertDialogFooter>
+                    </AlertDialogContent>
+                </AlertDialog>
             </div>
         </>
     );
