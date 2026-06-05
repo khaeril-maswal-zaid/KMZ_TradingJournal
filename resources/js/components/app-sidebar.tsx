@@ -23,6 +23,8 @@ import {
     SidebarMenuItem,
 } from '@/components/ui/sidebar';
 import { dashboard } from '@/routes';
+import { index as transIndex } from '@/routes/transactions';
+import { index as matchingsIndex } from '@/routes/tradematching';
 import type { NavItem } from '@/types';
 
 const mainNavItems: NavItem[] = [
@@ -33,12 +35,12 @@ const mainNavItems: NavItem[] = [
     },
     {
         title: 'Transaksi',
-        href: '/transactions',
+        href: transIndex.url(),
         icon: ReceiptText,
     },
     {
-        title: 'Analisa Trading',
-        href: '/analysis-groups',
+        title: 'Trade Matching',
+        href: matchingsIndex.url(),
         icon: ChartCandlestick,
     },
     {

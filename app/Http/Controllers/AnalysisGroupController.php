@@ -48,7 +48,7 @@ class AnalysisGroupController extends Controller
 
         Inertia::flash('toast', ['type' => 'success', 'message' => 'Grup analisa berhasil dibuat.']);
 
-        return to_route('analysis-groups.show', $group);
+        return to_route('tradematching.show', $group);
     }
 
     public function show(AnalysisGroup $analysisGroup, AnalysisGroupCalculationService $calculator): Response

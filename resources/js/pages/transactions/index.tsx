@@ -34,6 +34,7 @@ import {
 } from '@/components/ui/table';
 import { formatCrypto, formatMoney } from '@/lib/trading';
 import type { Paginated, Transaction } from '@/types';
+import { index } from '@/routes/transactions';
 
 type Filters = {
     search: string;
@@ -65,7 +66,7 @@ export default function TransactionsIndex({ transactions, filters }: Props) {
         const merged = { ...filters, ...nextFilters };
 
         router.get(
-            '/transactions',
+            index.url(),
             {
                 search: merged.search || undefined,
                 type: merged.type === 'ALL' ? undefined : merged.type,

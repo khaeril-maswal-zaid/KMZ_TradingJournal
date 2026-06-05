@@ -13,11 +13,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('transactions/import', [TransactionController::class, 'storeImport'])->name('transactions.importstore');
     Route::get('transactions', [TransactionController::class, 'index'])->name('transactions.index');
 
-    Route::get('analysis-groups', [AnalysisGroupController::class, 'index'])->name('analysis-groups.index');
-    Route::post('analysis-groups', [AnalysisGroupController::class, 'store'])->name('analysis-groups.store');
-    Route::get('analysis-groups/{analysisGroup:key_analysis_group}', [AnalysisGroupController::class, 'show'])->name('analysis-groups.show');
-    Route::post('analysis-groups/{analysisGroup:key_analysis_group}/transactions', [AnalysisGroupController::class, 'attach'])->name('analysis-groups.transactions.attach');
-    Route::delete('analysis-groups/{analysisGroup:key_analysis_group}/transactions/{transaction}', [AnalysisGroupController::class, 'detach'])->name('analysis-groups.transactions.detach');
+    Route::get('trade-matching', [AnalysisGroupController::class, 'index'])->name('tradematching.index');
+    Route::post('trade-matching', [AnalysisGroupController::class, 'store'])->name('tradematching.store');
+    Route::get('trade-matching/{analysisGroup:key_analysis_group}', [AnalysisGroupController::class, 'show'])->name('tradematching.show');
+    Route::post('trade-matching/{analysisGroup:key_analysis_group}/transactions', [AnalysisGroupController::class, 'attach'])->name('tradematching.attach');
+    Route::delete('trade-matching/{analysisGroup:key_analysis_group}/transactions/{transaction}', [AnalysisGroupController::class, 'detach'])->name('tradematching.detach');
 });
 
 require __DIR__ . '/settings.php';

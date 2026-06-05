@@ -42,6 +42,7 @@ import type {
     SellBreakdown,
     Transaction,
 } from '@/types';
+import { attach, detach, index } from '@/routes/tradematching';
 
 type Props = {
     group: ResourceItem<AnalysisGroup>;
@@ -50,61 +51,6 @@ type Props = {
     sellBreakdown: SellBreakdown[];
     availableTransactions: ResourceCollection<Transaction>;
 };
-
-function TransactionCard({
-    transaction,
-    onRemove,
-}: {
-    transaction: Transaction;
-    onRemove: (transaction: Transaction) => void;
-}) {
-    return (
-        <div className="rounded-lg border bg-card p-4 shadow-xs transition hover:border-primary/30">
-            <div className="flex items-start justify-between gap-3">
-                <div>
-                    <p className="text-sm font-medium">{transaction.pair}</p>
-                    <p className="mt-1 text-xs text-muted-foreground">
-                        {transaction.executed_at_label}
-                    </p>
-                </div>
-                <TransactionTypeBadge type={transaction.type} />
-            </div>
-            <div className="mt-4 grid grid-cols-2 gap-3 text-sm">
-                <div>
-                    <p className="text-xs text-muted-foreground">Jumlah</p>
-                    <p className="mt-1 font-medium tabular-nums">
-                        {formatCrypto(transaction.amount)}
-                    </p>
-                </div>
-                <div>
-                    <p className="text-xs text-muted-foreground">Total</p>
-                    <p className="mt-1 font-medium tabular-nums">
-                        {formatMoney(
-                            transaction.total,
-                            transaction.quote_asset,
-                        )}
-                    </p>
-                </div>
-                <div className="col-span-2">
-                    <p className="text-xs text-muted-foreground">Fee</p>
-                    <p className="mt-1 font-medium tabular-nums">
-                        {formatCrypto(transaction.fee_amount)}{' '}
-                        {transaction.fee_coin ?? '-'}
-                    </p>
-                </div>
-            </div>
-            <Button
-                variant="ghost"
-                size="sm"
-                className="mt-3 text-destructive hover:text-destructive"
-                onClick={() => onRemove(transaction)}
-            >
-                <Trash2 className="size-4" />
-                Hapus dari Grup
-            </Button>
-        </div>
-    );
-}
 
 export default function AnalysisGroupShow({
     group,
@@ -138,10 +84,10 @@ export default function AnalysisGroupShow({
         );
     };
 
-    const attach = (): void => {
+    const attacher = (): void => {
         setProcessing(true);
         router.post(
-            `/analysis-groups/${analysis.id}/transactions`,
+            attach.url(analysis.key),
             { transaction_ids: selectedIds },
             {
                 preserveScroll: true,
@@ -154,9 +100,12 @@ export default function AnalysisGroupShow({
         );
     };
 
-    const detach = (transaction: Transaction): void => {
+    const detacher = (transaction: Transaction): void => {
         router.delete(
-            `/analysis-groups/${analysis.id}/transactions/${transaction.id}`,
+            detach.url({
+                analysisGroup: analysis.key,
+                transaction: transaction.id,
+            }),
             {
                 preserveScroll: true,
             },
@@ -225,11 +174,18 @@ export default function AnalysisGroupShow({
                                                     key={transaction.id}
                                                     className={
                                                         transaction.is_analyzed
-                                                            ? 'opacity-60'
+                                                            ? 'cursor-pointer opacity-60'
                                                             : undefined
                                                     }
+                                                    onClick={() =>
+                                                        toggle(transaction)
+                                                    }
                                                 >
-                                                    <TableCell>
+                                                    <TableCell
+                                                        onClick={(e) =>
+                                                            e.stopPropagation()
+                                                        }
+                                                    >
                                                         {transaction.is_analyzed ? (
                                                             <Lock className="size-4 text-muted-foreground" />
                                                         ) : (
@@ -287,7 +243,7 @@ export default function AnalysisGroupShow({
                                     Batal
                                 </Button>
                                 <Button
-                                    onClick={attach}
+                                    onClick={attacher}
                                     disabled={
                                         processing || selectedIds.length === 0
                                     }
@@ -397,7 +353,7 @@ export default function AnalysisGroupShow({
                                                                 size="sm"
                                                                 className="h-6 w-6 p-0 text-destructive hover:text-destructive"
                                                                 onClick={() =>
-                                                                    detach(
+                                                                    detacher(
                                                                         transaction,
                                                                     )
                                                                 }
@@ -478,7 +434,7 @@ export default function AnalysisGroupShow({
                                                                 size="sm"
                                                                 className="h-6 w-6 p-0 text-destructive hover:text-destructive"
                                                                 onClick={() =>
-                                                                    detach(
+                                                                    detacher(
                                                                         transaction,
                                                                     )
                                                                 }
@@ -500,7 +456,7 @@ export default function AnalysisGroupShow({
                 <Card className="rounded-lg shadow-xs">
                     <CardHeader>
                         <CardTitle className="text-base">
-                            Hasil Analisa Penjualan
+                            Hasil Trade Matching
                         </CardTitle>
                     </CardHeader>
                     <CardContent>
@@ -584,5 +540,14 @@ export default function AnalysisGroupShow({
 }
 
 AnalysisGroupShow.layout = {
-    breadcrumbs: [{ title: 'Analisa Trading', href: '/analysis-groups' }],
+    breadcrumbs: [
+        {
+            title: 'Trade Matching',
+            href: index.url(),
+        },
+        {
+            title: `Details`,
+            href: null,
+        },
+    ],
 };

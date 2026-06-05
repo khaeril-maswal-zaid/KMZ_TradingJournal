@@ -9,8 +9,7 @@ import { ImportToolbar } from '@/components/trading/import-toolbar';
 import { useTransactionImportTable } from '@/hooks/use-transaction-import-table';
 import { BreadcrumbItem } from '@/types';
 import { importstore } from '@/routes/transactions';
-
-const importUrl = '/transactions/import';
+import { index } from '@/routes/transactions';
 
 export default function TransactionsImport() {
     const {
@@ -114,11 +113,11 @@ export default function TransactionsImport() {
 const breadcrumbs: BreadcrumbItem[] = [
     {
         title: 'Transaksi',
-        href: importUrl,
+        href: index.url(),
     },
     {
         title: 'Import Data',
-        href: importUrl,
+        href: index.url(),
     },
 ];
 

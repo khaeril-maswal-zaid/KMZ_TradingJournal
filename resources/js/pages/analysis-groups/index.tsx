@@ -15,7 +15,6 @@ import {
     DialogTitle,
     DialogTrigger,
 } from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
 import {
     Table,
     TableBody,
@@ -31,6 +30,7 @@ import type {
     ResourceCollection,
     Transaction,
 } from '@/types';
+import { index, show, store } from '@/routes/tradematching';
 
 type Props = {
     groups: Paginated<AnalysisGroup>;
@@ -57,7 +57,7 @@ export default function AnalysisGroupsIndex({
         setProcessing(true);
 
         router.post(
-            '/analysis-groups',
+            store.url(),
             {
                 transaction_ids: selectedIds,
             },
@@ -139,8 +139,18 @@ export default function AnalysisGroupsIndex({
                                                                 ? 'selected'
                                                                 : undefined
                                                         }
+                                                        className="cursor-pointer"
+                                                        onClick={() =>
+                                                            toggleTransaction(
+                                                                transaction.id,
+                                                            )
+                                                        }
                                                     >
-                                                        <TableCell>
+                                                        <TableCell
+                                                            onClick={(e) =>
+                                                                e.stopPropagation()
+                                                            }
+                                                        >
                                                             <Checkbox
                                                                 checked={selectedIds.includes(
                                                                     transaction.id,
@@ -237,7 +247,7 @@ export default function AnalysisGroupsIndex({
                                         <TableRow key={group.key}>
                                             <TableCell>
                                                 <Link
-                                                    href={`/analysis-groups/${group.key}`}
+                                                    href={show.url(group.key)}
                                                     className="font-medium hover:underline"
                                                 >
                                                     {group.key}
@@ -314,5 +324,5 @@ export default function AnalysisGroupsIndex({
 }
 
 AnalysisGroupsIndex.layout = {
-    breadcrumbs: [{ title: 'Analisa Trading', href: '/analysis-groups' }],
+    breadcrumbs: [{ title: 'Trade Matching', href: index.url() }],
 };
