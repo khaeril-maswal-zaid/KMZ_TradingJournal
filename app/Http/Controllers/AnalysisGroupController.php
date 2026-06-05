@@ -108,6 +108,18 @@ class AnalysisGroupController extends Controller
         return back();
     }
 
+    public function destroy(AnalysisGroup $analysisGroup): RedirectResponse
+    {
+        // detach all transactions first to avoid foreign key issues
+        $analysisGroup->transactions()->detach();
+
+        AnalysisGroup::destroy($analysisGroup->id);
+
+        Inertia::flash('toast', ['type' => 'success', 'message' => 'Grup analisa berhasil dihapus.']);
+
+        return to_route('tradematching.index');
+    }
+
     /**
      * @param  array<int, int>  $transactionIds
      */

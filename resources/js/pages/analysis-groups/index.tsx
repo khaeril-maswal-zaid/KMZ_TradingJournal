@@ -1,6 +1,6 @@
 import { Head, Link, router } from '@inertiajs/react';
-import { Loader2, Plus, Search } from 'lucide-react';
-import { useMemo, useState } from 'react';
+import { Loader2, Plus, Trash2 } from 'lucide-react';
+import { useState } from 'react';
 import { ProfitBadge } from '@/components/trading/profit-badge';
 import { TransactionTypeBadge } from '@/components/trading/transaction-type-badge';
 import { Button } from '@/components/ui/button';
@@ -30,7 +30,17 @@ import type {
     ResourceCollection,
     Transaction,
 } from '@/types';
-import { index, show, store } from '@/routes/tradematching';
+import { index, show, store, destroy } from '@/routes/tradematching';
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 
 type Props = {
     groups: Paginated<AnalysisGroup>;
@@ -44,6 +54,8 @@ export default function AnalysisGroupsIndex({
     const [open, setOpen] = useState(false);
     const [selectedIds, setSelectedIds] = useState<number[]>([]);
     const [processing, setProcessing] = useState(false);
+    const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+    const [groupToDelete, setGroupToDelete] = useState<string | null>(null);
 
     const toggleTransaction = (id: number): void => {
         setSelectedIds((current) =>
@@ -74,31 +86,33 @@ export default function AnalysisGroupsIndex({
 
     return (
         <>
-            <Head title="Analisa Trading" />
+            <Head title="Trade Matching" />
             <div className="flex flex-1 flex-col gap-6 p-4 md:p-6">
                 <div className="flex flex-col justify-between gap-4 md:flex-row md:items-end">
                     <div>
                         <h1 className="text-2xl font-semibold tracking-normal md:text-3xl">
-                            Analisa Trading
+                            Trade Matching
                         </h1>
                         <p className="mt-1 text-sm text-muted-foreground">
                             Kelompokkan transaksi BUY dan SELL menjadi satu sesi
-                            analisa.
+                            trade matching.
                         </p>
                     </div>
                     <Dialog open={open} onOpenChange={setOpen}>
                         <DialogTrigger asChild>
                             <Button>
                                 <Plus className="size-4" />
-                                Buat Analisa
+                                Buat Matching
                             </Button>
                         </DialogTrigger>
                         <DialogContent className="sm:max-w-3xl">
                             <DialogHeader>
-                                <DialogTitle>Buat Grup Analisa</DialogTitle>
+                                <DialogTitle>
+                                    Buat Grup Trade Matching
+                                </DialogTitle>
                                 <DialogDescription>
                                     Pilih transaksi yang saling berhubungan
-                                    dalam satu analisa trading.
+                                    dalam satu trade matching.
                                 </DialogDescription>
                             </DialogHeader>
 
@@ -213,7 +227,7 @@ export default function AnalysisGroupsIndex({
                         <Table>
                             <TableHeader>
                                 <TableRow>
-                                    <TableHead>Key Analisa Trading</TableHead>
+                                    <TableHead>Key Trade Matching</TableHead>
                                     <TableHead className="text-right">
                                         Total Buy
                                     </TableHead>
@@ -236,7 +250,7 @@ export default function AnalysisGroupsIndex({
                                 {groups.data.length === 0 ? (
                                     <TableRow>
                                         <TableCell
-                                            colSpan={7}
+                                            colSpan={8}
                                             className="h-36 text-center text-muted-foreground"
                                         >
                                             Belum ada grup analisa.
@@ -277,11 +291,70 @@ export default function AnalysisGroupsIndex({
                                                     status={group.status}
                                                 />
                                             </TableCell>
+                                            <TableCell className="text-right">
+                                                <Button
+                                                    variant="ghost"
+                                                    size="sm"
+                                                    onClick={() => {
+                                                        setGroupToDelete(
+                                                            group.key,
+                                                        );
+                                                        setDeleteConfirmOpen(
+                                                            true,
+                                                        );
+                                                    }}
+                                                >
+                                                    <Trash2 className="size-4" />
+                                                </Button>
+                                            </TableCell>
                                         </TableRow>
                                     ))
                                 )}
                             </TableBody>
                         </Table>
+                        <AlertDialog
+                            open={deleteConfirmOpen}
+                            onOpenChange={setDeleteConfirmOpen}
+                        >
+                            <AlertDialogContent>
+                                <AlertDialogHeader>
+                                    <AlertDialogTitle>
+                                        Hapus Trade Matching
+                                    </AlertDialogTitle>
+                                    <AlertDialogDescription>
+                                        Apakah Anda yakin ingin menghapus grup
+                                        analisa ini? Tindakan ini akan menghapus
+                                        grup dan melepaskan transaksi yang
+                                        terkait.
+                                    </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                    <AlertDialogCancel>Batal</AlertDialogCancel>
+                                    <AlertDialogAction
+                                        className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                                        onClick={() => {
+                                            if (!groupToDelete) return;
+
+                                            router.delete(
+                                                destroy.url(groupToDelete),
+                                                {
+                                                    preserveScroll: true,
+                                                    onFinish: () => {
+                                                        setDeleteConfirmOpen(
+                                                            false,
+                                                        );
+                                                        setGroupToDelete(null);
+                                                    },
+                                                },
+                                            );
+                                        }}
+                                    >
+                                        Hapus
+                                    </AlertDialogAction>
+                                </AlertDialogFooter>
+                            </AlertDialogContent>
+                        </AlertDialog>
+
                         <div className="mt-4 flex flex-col justify-between gap-3 border-t pt-4 text-sm text-muted-foreground md:flex-row md:items-center">
                             <span>
                                 Menampilkan {groups.meta.from ?? 0}-

@@ -1,11 +1,13 @@
 import { Head, router } from '@inertiajs/react';
 import {
     BarChart3,
+    Calculator,
     CircleDollarSign,
     Loader2,
     Lock,
     Plus,
     ReceiptText,
+    Target,
     Trash2,
     TrendingUp,
 } from 'lucide-react';
@@ -53,6 +55,8 @@ import type {
     Transaction,
 } from '@/types';
 import { attach, detach, index } from '@/routes/tradematching';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 
 type Props = {
     group: ResourceItem<AnalysisGroup>;
@@ -148,30 +152,53 @@ export default function AnalysisGroupShow({
             average_buy_price: 0,
         };
 
+    const [mode, setMode] = useState<'price' | 'roi'>('price');
+
+    const [totalAmountInput, setTotalAmountInput] =
+        useState<number>(total_buy_amount);
+
     const [targetSellPrice, setTargetSellPrice] = useState<number>(
         average_buy_price || 0,
     );
 
-    const estimated = useMemo(() => {
-        const estimatedSellValue = total_buy_amount * targetSellPrice;
-        const estimatedProfit = estimatedSellValue - total_buy_cost;
-        const roi =
-            total_buy_cost > 0 ? (estimatedProfit / total_buy_cost) * 100 : 0;
+    const [targetRoi, setTargetRoi] = useState<number>(0);
+
+    const computed = useMemo(() => {
+        if (mode === 'price') {
+            const estimatedSellValue = totalAmountInput * targetSellPrice;
+            const estimatedProfit = estimatedSellValue - total_buy_cost;
+            const roi =
+                total_buy_cost > 0
+                    ? (estimatedProfit / total_buy_cost) * 100
+                    : 0;
+
+            return {
+                targetSellPrice,
+                estimatedSellValue,
+                estimatedProfit,
+                roi,
+            };
+        }
+
+        // mode === 'roi'
+        const estimatedProfit = (targetRoi / 100) * total_buy_cost;
+        const estimatedSellValue = total_buy_cost + estimatedProfit;
+        const targetSell =
+            totalAmountInput > 0 ? estimatedSellValue / totalAmountInput : 0;
 
         return {
+            targetSellPrice: targetSell,
             estimatedSellValue,
             estimatedProfit,
-            roi,
+            roi: targetRoi,
         };
-    }, [total_buy_amount, total_buy_cost, targetSellPrice]);
+    }, [mode, totalAmountInput, targetSellPrice, targetRoi, total_buy_cost]);
 
     const handleConfirmDelete = (): void => {
         if (transactionToDelete) {
             detacher(transactionToDelete);
         }
     };
-
-    console.log(buyTransactions.data);
 
     return (
         <>
@@ -190,232 +217,350 @@ export default function AnalysisGroupShow({
                         </h1>
                     </div>
 
-                    <Dialog open={planner} onOpenChange={setPlanner}>
-                        <DialogTrigger asChild>
-                            <Button>
-                                <Plus className="size-4" />
-                                Sell Planner
-                            </Button>
-                        </DialogTrigger>
-                        <DialogContent className="sm:max-w-4xl">
-                            <DialogHeader>
-                                <DialogTitle>Sell Planner</DialogTitle>
-                                <DialogDescription>
-                                    Rencanakan hasil penjualan untuk transaksi
-                                    BUY yang sudah ada di grup ini.
-                                </DialogDescription>
-                            </DialogHeader>
+                    <div className="flex gap-2 self-end">
+                        {sellTransactions.data.length === 0 && (
+                            <Dialog open={planner} onOpenChange={setPlanner}>
+                                <DialogTrigger asChild>
+                                    <Button>
+                                        <Calculator className="size-4" />
+                                        Sell Planner
+                                    </Button>
+                                </DialogTrigger>
+                                <DialogContent className="sm:max-w-4xl">
+                                    <DialogHeader>
+                                        <DialogTitle>Sell Planner</DialogTitle>
+                                        <DialogDescription>
+                                            Rencanakan hasil penjualan untuk
+                                            transaksi BUY yang sudah ada di grup
+                                            ini.
+                                        </DialogDescription>
+                                    </DialogHeader>
 
-                            <div className="max-h-96 overflow-auto rounded-lg border"></div>
-                            <div className="space-y-4">
-                                <div className="grid gap-3 md:grid-cols-3">
-                                    <div className="rounded-lg border bg-card p-4">
-                                        <p className="text-sm text-muted-foreground">
-                                            Total Amount
-                                        </p>
-                                        <p className="mt-1 font-medium tabular-nums">
-                                            {formatCrypto(total_buy_amount)}
-                                        </p>
-                                    </div>
-                                    <div className="rounded-lg border bg-card p-4">
-                                        <p className="text-sm text-muted-foreground">
-                                            Average Buy Price
-                                        </p>
-                                        <p className="mt-1 font-medium tabular-nums">
-                                            {formatMoney(average_buy_price)}
-                                        </p>
-                                    </div>
-                                    <div className="rounded-lg border bg-card p-4">
-                                        <p className="text-sm text-muted-foreground">
-                                            Total Modal
-                                        </p>
-                                        <p className="mt-1 font-medium tabular-nums">
-                                            {formatMoney(total_buy_cost)}
-                                        </p>
-                                    </div>
-                                </div>
+                                    <div className="max-h-96 overflow-auto rounded-lg border"></div>
+                                    <div className="space-y-4">
+                                        <div className="grid gap-3 md:grid-cols-3">
+                                            <div className="rounded-lg border bg-card p-4">
+                                                <p className="text-sm text-muted-foreground">
+                                                    Total Amount
+                                                </p>
+                                                <div className="mt-1 flex items-center gap-2">
+                                                    <Input
+                                                        type="number"
+                                                        className="w-full rounded-md border p-2 text-right tabular-nums"
+                                                        value={totalAmountInput.toFixed(
+                                                            6,
+                                                        )}
+                                                        onChange={(e) =>
+                                                            setTotalAmountInput(
+                                                                Number(
+                                                                    e.target
+                                                                        .value,
+                                                                ),
+                                                            )
+                                                        }
+                                                        step="0.00000001"
+                                                    />
+                                                </div>
+                                            </div>
+                                            <div className="rounded-lg border bg-card p-4">
+                                                <p className="text-sm text-muted-foreground">
+                                                    Average Buy Price
+                                                </p>
+                                                <p className="mt-1 font-medium tabular-nums">
+                                                    {formatMoney(
+                                                        average_buy_price,
+                                                    )}
+                                                </p>
+                                            </div>
+                                            <div className="rounded-lg border bg-card p-4">
+                                                <p className="text-sm text-muted-foreground">
+                                                    Total Modal
+                                                </p>
+                                                <p className="mt-1 font-medium tabular-nums">
+                                                    {formatMoney(
+                                                        total_buy_cost,
+                                                    )}
+                                                </p>
+                                            </div>
+                                        </div>
 
-                                <div className="rounded-lg border bg-muted/30 p-4">
-                                    <label className="text-sm text-muted-foreground">
-                                        Target Sell Price
-                                    </label>
-                                    <div className="mt-1 flex items-center gap-2">
-                                        <input
-                                            type="number"
-                                            className="w-full rounded-md border p-2 text-right tabular-nums"
-                                            value={targetSellPrice}
-                                            onChange={(e) =>
-                                                setTargetSellPrice(
-                                                    Number(e.target.value),
-                                                )
-                                            }
-                                            step="0.00000001"
-                                        />
-                                    </div>
-                                </div>
-
-                                <div className="grid gap-3 md:grid-cols-3">
-                                    <div className="rounded-lg border bg-card p-4">
-                                        <p className="text-sm text-muted-foreground">
-                                            Estimated Sell Value
-                                        </p>
-                                        <p className="mt-1 font-medium tabular-nums">
-                                            {formatMoney(
-                                                estimated.estimatedSellValue,
-                                            )}
-                                        </p>
-                                    </div>
-                                    <div className="rounded-lg border bg-card p-4">
-                                        <p className="text-sm text-muted-foreground">
-                                            Estimated Profit
-                                        </p>
-                                        <p className="mt-1 font-medium tabular-nums">
-                                            {formatMoney(
-                                                estimated.estimatedProfit,
-                                            )}
-                                        </p>
-                                    </div>
-                                    <div className="rounded-lg border bg-card p-4">
-                                        <p className="text-sm text-muted-foreground">
-                                            ROI
-                                        </p>
-                                        <p className="mt-1 font-medium tabular-nums">
-                                            {formatPercent(estimated.roi)}
-                                        </p>
-                                    </div>
-                                </div>
-                            </div>
-                        </DialogContent>
-                    </Dialog>
-
-                    <Dialog open={open} onOpenChange={setOpen}>
-                        <DialogTrigger asChild>
-                            <Button>
-                                <Plus className="size-4" />
-                                Tambah Transaksi
-                            </Button>
-                        </DialogTrigger>
-                        <DialogContent className="sm:max-w-4xl">
-                            <DialogHeader>
-                                <DialogTitle>Matching Transaksi</DialogTitle>
-                                <DialogDescription>
-                                    Pilih transaksi BUY dan SELL yang masuk ke
-                                    analisa ini. Transaksi yang sudah dipakai
-                                    tampil terkunci.
-                                </DialogDescription>
-                            </DialogHeader>
-                            <div className="rounded-lg border bg-muted/30 p-4 text-sm">
-                                <p className="font-medium">
-                                    {selectedIds.length} transaksi dipilih
-                                </p>
-                                <p className="mt-1 text-muted-foreground">
-                                    Subtotal pilihan:{' '}
-                                    {formatMoney(selectedTotal)}
-                                </p>
-                            </div>
-                            <div className="max-h-96 overflow-auto rounded-lg border">
-                                <Table>
-                                    <TableHeader className="sticky top-0 bg-muted">
-                                        <TableRow>
-                                            <TableHead className="w-10" />
-                                            <TableHead>Tanggal</TableHead>
-                                            <TableHead>Pair</TableHead>
-                                            <TableHead>Tipe</TableHead>
-                                            <TableHead className="text-right">
-                                                Total
-                                            </TableHead>
-                                            <TableHead>Status</TableHead>
-                                        </TableRow>
-                                    </TableHeader>
-                                    <TableBody>
-                                        {availableTransactions.data.map(
-                                            (transaction) => (
-                                                <TableRow
-                                                    key={transaction.id}
-                                                    className={
-                                                        transaction.is_analyzed
-                                                            ? 'cursor-pointer opacity-60'
-                                                            : undefined
-                                                    }
+                                        <div className="flex items-center gap-2">
+                                            <div className="flex gap-1 rounded-md bg-muted p-1">
+                                                <button
+                                                    type="button"
+                                                    className={`rounded-md px-3 py-1 text-sm ${mode === 'price' ? 'bg-card' : 'text-muted-foreground'}`}
                                                     onClick={() =>
-                                                        toggle(transaction)
+                                                        setMode('price')
                                                     }
                                                 >
-                                                    <TableCell
-                                                        onClick={(e) =>
-                                                            e.stopPropagation()
+                                                    By Price
+                                                </button>
+                                                <button
+                                                    type="button"
+                                                    className={`rounded-md px-3 py-1 text-sm ${mode === 'roi' ? 'bg-card' : 'text-muted-foreground'}`}
+                                                    onClick={() =>
+                                                        setMode('roi')
+                                                    }
+                                                >
+                                                    By ROI
+                                                </button>
+                                            </div>
+                                        </div>
+
+                                        {mode === 'price' ? (
+                                            <div className="space-y-4">
+                                                <div className="rounded-lg border bg-muted/30 p-4">
+                                                    <Label className="text-sm text-muted-foreground">
+                                                        Target Sell Price
+                                                    </Label>
+                                                    <div className="mt-1 flex items-center gap-2">
+                                                        <Input
+                                                            type="number"
+                                                            className="w-full rounded-md border p-2 text-right tabular-nums"
+                                                            value={targetSellPrice.toFixed(
+                                                                2,
+                                                            )}
+                                                            onChange={(e) =>
+                                                                setTargetSellPrice(
+                                                                    Number(
+                                                                        e.target
+                                                                            .value,
+                                                                    ),
+                                                                )
+                                                            }
+                                                            step="0.00000001"
+                                                        />
+                                                    </div>
+                                                </div>
+
+                                                <div className="grid gap-3 md:grid-cols-3">
+                                                    <div className="rounded-lg border bg-card p-4">
+                                                        <p className="text-sm text-muted-foreground">
+                                                            Estimated Sell Value
+                                                        </p>
+                                                        <p className="mt-1 font-medium tabular-nums">
+                                                            {formatMoney(
+                                                                computed.estimatedSellValue,
+                                                            )}
+                                                        </p>
+                                                    </div>
+                                                    <div className="rounded-lg border bg-card p-4">
+                                                        <p className="text-sm text-muted-foreground">
+                                                            Estimated Profit
+                                                        </p>
+                                                        <p className="mt-1 font-medium tabular-nums">
+                                                            {formatMoney(
+                                                                computed.estimatedProfit,
+                                                            )}
+                                                        </p>
+                                                    </div>
+                                                    <div className="rounded-lg border bg-card p-4">
+                                                        <p className="text-sm text-muted-foreground">
+                                                            ROI
+                                                        </p>
+                                                        <p className="mt-1 font-medium tabular-nums">
+                                                            {formatPercent(
+                                                                computed.roi,
+                                                            )}
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        ) : (
+                                            <div className="space-y-4">
+                                                <div className="rounded-lg border bg-muted/30 p-4">
+                                                    <Label className="text-sm text-muted-foreground">
+                                                        Target ROI (%)
+                                                    </Label>
+                                                    <div className="mt-1 flex items-center gap-2">
+                                                        <Input
+                                                            type="number"
+                                                            className="w-full rounded-md border p-2 text-right tabular-nums"
+                                                            value={targetRoi}
+                                                            onChange={(e) =>
+                                                                setTargetRoi(
+                                                                    Number(
+                                                                        e.target
+                                                                            .value,
+                                                                    ),
+                                                                )
+                                                            }
+                                                            step="0.01"
+                                                        />
+                                                    </div>
+                                                </div>
+
+                                                <div className="grid gap-3 md:grid-cols-3">
+                                                    <div className="rounded-lg border bg-card p-4">
+                                                        <p className="text-sm text-muted-foreground">
+                                                            Target Sell Price
+                                                        </p>
+                                                        <p className="mt-1 font-medium tabular-nums">
+                                                            {formatMoney(
+                                                                computed.targetSellPrice,
+                                                            )}
+                                                        </p>
+                                                    </div>
+                                                    <div className="rounded-lg border bg-card p-4">
+                                                        <p className="text-sm text-muted-foreground">
+                                                            Estimated Profit
+                                                        </p>
+                                                        <p className="mt-1 font-medium tabular-nums">
+                                                            {formatMoney(
+                                                                computed.estimatedProfit,
+                                                            )}
+                                                        </p>
+                                                    </div>
+                                                    <div className="rounded-lg border bg-card p-4">
+                                                        <p className="text-sm text-muted-foreground">
+                                                            Estimated Sell Value
+                                                        </p>
+                                                        <p className="mt-1 font-medium tabular-nums">
+                                                            {formatMoney(
+                                                                computed.estimatedSellValue,
+                                                            )}
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
+                                </DialogContent>
+                            </Dialog>
+                        )}
+
+                        <Dialog open={open} onOpenChange={setOpen}>
+                            <DialogTrigger asChild>
+                                <Button>
+                                    <Plus className="size-4" />
+                                    Tambah Transaksi
+                                </Button>
+                            </DialogTrigger>
+                            <DialogContent className="sm:max-w-4xl">
+                                <DialogHeader>
+                                    <DialogTitle>
+                                        Matching Transaksi
+                                    </DialogTitle>
+                                    <DialogDescription>
+                                        Pilih transaksi BUY dan SELL yang masuk
+                                        ke analisa ini. Transaksi yang sudah
+                                        dipakai tampil terkunci.
+                                    </DialogDescription>
+                                </DialogHeader>
+                                <div className="rounded-lg border bg-muted/30 p-4 text-sm">
+                                    <p className="font-medium">
+                                        {selectedIds.length} transaksi dipilih
+                                    </p>
+                                    <p className="mt-1 text-muted-foreground">
+                                        Subtotal pilihan:{' '}
+                                        {formatMoney(selectedTotal)}
+                                    </p>
+                                </div>
+                                <div className="max-h-96 overflow-auto rounded-lg border">
+                                    <Table>
+                                        <TableHeader className="sticky top-0 bg-muted">
+                                            <TableRow>
+                                                <TableHead className="w-10" />
+                                                <TableHead>Tanggal</TableHead>
+                                                <TableHead>Pair</TableHead>
+                                                <TableHead>Tipe</TableHead>
+                                                <TableHead className="text-right">
+                                                    Total
+                                                </TableHead>
+                                                <TableHead>Status</TableHead>
+                                            </TableRow>
+                                        </TableHeader>
+                                        <TableBody>
+                                            {availableTransactions.data.map(
+                                                (transaction) => (
+                                                    <TableRow
+                                                        key={transaction.id}
+                                                        className={
+                                                            transaction.is_analyzed
+                                                                ? 'cursor-pointer opacity-60'
+                                                                : undefined
+                                                        }
+                                                        onClick={() =>
+                                                            toggle(transaction)
                                                         }
                                                     >
-                                                        {transaction.is_analyzed ? (
-                                                            <Lock className="size-4 text-muted-foreground" />
-                                                        ) : (
-                                                            <Checkbox
-                                                                checked={selectedIds.includes(
-                                                                    transaction.id,
-                                                                )}
-                                                                onCheckedChange={() =>
-                                                                    toggle(
-                                                                        transaction,
-                                                                    )
+                                                        <TableCell
+                                                            onClick={(e) =>
+                                                                e.stopPropagation()
+                                                            }
+                                                        >
+                                                            {transaction.is_analyzed ? (
+                                                                <Lock className="size-4 text-muted-foreground" />
+                                                            ) : (
+                                                                <Checkbox
+                                                                    checked={selectedIds.includes(
+                                                                        transaction.id,
+                                                                    )}
+                                                                    onCheckedChange={() =>
+                                                                        toggle(
+                                                                            transaction,
+                                                                        )
+                                                                    }
+                                                                />
+                                                            )}
+                                                        </TableCell>
+                                                        <TableCell className="text-muted-foreground">
+                                                            {
+                                                                transaction.executed_at_label
+                                                            }
+                                                        </TableCell>
+                                                        <TableCell className="font-medium">
+                                                            {transaction.pair}
+                                                        </TableCell>
+                                                        <TableCell>
+                                                            <TransactionTypeBadge
+                                                                type={
+                                                                    transaction.type
                                                                 }
                                                             />
-                                                        )}
-                                                    </TableCell>
-                                                    <TableCell className="text-muted-foreground">
-                                                        {
-                                                            transaction.executed_at_label
-                                                        }
-                                                    </TableCell>
-                                                    <TableCell className="font-medium">
-                                                        {transaction.pair}
-                                                    </TableCell>
-                                                    <TableCell>
-                                                        <TransactionTypeBadge
-                                                            type={
-                                                                transaction.type
-                                                            }
-                                                        />
-                                                    </TableCell>
-                                                    <TableCell className="text-right tabular-nums">
-                                                        {formatMoney(
-                                                            transaction.total,
-                                                            transaction.quote_asset,
-                                                        )}
-                                                    </TableCell>
-                                                    <TableCell>
-                                                        <Badge variant="outline">
-                                                            {transaction.is_analyzed
-                                                                ? 'Terkunci'
-                                                                : 'Tersedia'}
-                                                        </Badge>
-                                                    </TableCell>
-                                                </TableRow>
-                                            ),
+                                                        </TableCell>
+                                                        <TableCell className="text-right tabular-nums">
+                                                            {formatMoney(
+                                                                transaction.total,
+                                                                transaction.quote_asset,
+                                                            )}
+                                                        </TableCell>
+                                                        <TableCell>
+                                                            <Badge variant="outline">
+                                                                {transaction.is_analyzed
+                                                                    ? 'Terkunci'
+                                                                    : 'Tersedia'}
+                                                            </Badge>
+                                                        </TableCell>
+                                                    </TableRow>
+                                                ),
+                                            )}
+                                        </TableBody>
+                                    </Table>
+                                </div>
+                                <DialogFooter>
+                                    <Button
+                                        variant="outline"
+                                        onClick={() => setOpen(false)}
+                                    >
+                                        Batal
+                                    </Button>
+                                    <Button
+                                        onClick={attacher}
+                                        disabled={
+                                            processing ||
+                                            selectedIds.length === 0
+                                        }
+                                    >
+                                        {processing && (
+                                            <Loader2 className="size-4 animate-spin" />
                                         )}
-                                    </TableBody>
-                                </Table>
-                            </div>
-                            <DialogFooter>
-                                <Button
-                                    variant="outline"
-                                    onClick={() => setOpen(false)}
-                                >
-                                    Batal
-                                </Button>
-                                <Button
-                                    onClick={attacher}
-                                    disabled={
-                                        processing || selectedIds.length === 0
-                                    }
-                                >
-                                    {processing && (
-                                        <Loader2 className="size-4 animate-spin" />
-                                    )}
-                                    Masukkan ke Grup
-                                </Button>
-                            </DialogFooter>
-                        </DialogContent>
-                    </Dialog>
+                                        Masukkan ke Grup
+                                    </Button>
+                                </DialogFooter>
+                            </DialogContent>
+                        </Dialog>
+                    </div>
                 </div>
 
                 <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
