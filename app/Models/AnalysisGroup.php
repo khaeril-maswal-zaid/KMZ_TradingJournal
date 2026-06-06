@@ -16,6 +16,8 @@ class AnalysisGroup extends Model
     use HasUuid;
 
     protected $fillable = [
+        'executed_at',
+        'user_id',
         'key_analysis_group',
         'total_buy',
         'total_sell',
@@ -31,6 +33,7 @@ class AnalysisGroup extends Model
             'total_sell' => 'decimal:10',
             'profit' => 'decimal:10',
             'roi_percent' => 'decimal:4',
+            'executed_at' => 'datetime',
         ];
     }
 

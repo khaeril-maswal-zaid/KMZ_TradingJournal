@@ -14,6 +14,7 @@ class AnalysisGroupResource extends JsonResource
     {
         return [
             'id' => $this->id,
+            'executed_at' => $this->executed_at?->timezone('UTC')->format('d M Y H:i') . ' UTC',
             'key' => $this->key_analysis_group,
             'total_buy' => (float) $this->total_buy,
             'total_sell' => (float) $this->total_sell,

@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\Transaction;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class TransactionImportService
@@ -17,6 +18,7 @@ class TransactionImportService
         return DB::transaction(function () use ($rows): Collection {
             return collect($rows)->map(function (array $row): Transaction {
                 return Transaction::create([
+                    'user_id' => Auth::id(),
                     'pair' => strtoupper((string) $row['pair']),
                     'base_asset' => strtoupper((string) $row['base_asset']),
                     'quote_asset' => strtoupper((string) $row['quote_asset']),

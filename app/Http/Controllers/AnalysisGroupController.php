@@ -12,6 +12,7 @@ use App\Models\Transaction;
 use App\Services\AnalysisGroupCalculationService;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -26,11 +27,12 @@ class AnalysisGroupController extends Controller
                     ->latest()
                     ->paginate(12)
             ),
+
             'availableTransactions' => TransactionResource::collection(
                 Transaction::query()
                     ->doesntHave('analysisGroupAssignment')
                     ->latest('executed_at')
-                    ->limit(20)
+                    // ->limit(20)
                     ->get()
             ),
         ]);
@@ -38,7 +40,10 @@ class AnalysisGroupController extends Controller
 
     public function store(StoreAnalysisGroupRequest $request, AnalysisGroupCalculationService $calculator): RedirectResponse
     {
-        $group = AnalysisGroup::create($request->validated());
+        $group = AnalysisGroup::create(
+            ['user_id' => Auth::id()],
+            $request->validated(),
+        );
 
         if ($request->filled('transaction_ids')) {
             $this->attachTransactions($group, $request->validated('transaction_ids'));

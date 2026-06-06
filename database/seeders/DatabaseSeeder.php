@@ -2,12 +2,10 @@
 
 namespace Database\Seeders;
 
-use App\Models\AnalysisGroup;
-use App\Models\Transaction;
 use App\Models\User;
-use App\Services\AnalysisGroupCalculationService;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Hash;
 
 class DatabaseSeeder extends Seeder
 {
@@ -19,21 +17,9 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         User::factory()->create([
-            'name' => 'Trader Demo',
-            'email' => 'demo@example.com',
+            'name' => 'Khaeril Maswal Zaid',
+            'email' => 'khairil@pintuperadaban.com',
+            'password' => Hash::make('trading77'),
         ]);
-
-        // $transactions = Transaction::factory(36)->create();
-        // $calculator = app(AnalysisGroupCalculationService::class);
-
-        // collect([
-        //     ['name' => 'BTC Scalping Juni', 'description' => 'Analisa scalping BTC dengan beberapa entry dan exit.'],
-        //     ['name' => 'ETH Swing Trade', 'description' => 'Tracking modal dan hasil jual ETH.'],
-        //     ['name' => 'SOL Breakout', 'description' => 'Eksperimen breakout SOL setelah konfirmasi volume.'],
-        // ])->each(function (array $payload, int $index) use ($transactions, $calculator): void {
-        //     $group = AnalysisGroup::create($payload);
-        //     $group->transactions()->attach($transactions->slice($index * 8, 8)->pluck('id')->all());
-        //     $calculator->recalculate($group);
-        // });
     }
 }

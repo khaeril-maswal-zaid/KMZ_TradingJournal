@@ -23,6 +23,7 @@ export type Transaction = {
 
 export type AnalysisGroup = {
     id: number;
+    executed_at: string;
     key: string;
     total_buy: number;
     total_sell: number;

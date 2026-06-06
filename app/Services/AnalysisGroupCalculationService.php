@@ -10,7 +10,8 @@ class AnalysisGroupCalculationService
 {
     public function recalculate(AnalysisGroup $analysisGroup): AnalysisGroup
     {
-        $transactions = $analysisGroup->transactions()->get(['transactions.id', 'type', 'total']);
+        $transactions = $analysisGroup->transactions()->get(['transactions.id', 'type', 'total', 'executed_at']);
+        $executedAt = $transactions->where('type', 'SELL')->max('executed_at');
 
         $totalBuy = (float) $transactions->where('type', 'BUY')->sum(fn(Transaction $transaction) => (float) $transaction->total);
         $totalSell = (float) $transactions->where('type', 'SELL')->sum(fn(Transaction $transaction) => (float) $transaction->total);
@@ -18,6 +19,7 @@ class AnalysisGroupCalculationService
         $roiPercent = $totalBuy > 0 ? ($profit / $totalBuy) * 100 : 0;
 
         $analysisGroup->forceFill([
+            'executed_at' => $executedAt,
             'total_buy' => $totalBuy,
             'total_sell' => $totalSell,
             'profit' => $profit,

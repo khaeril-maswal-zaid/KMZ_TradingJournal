@@ -463,6 +463,8 @@ export default function AnalysisGroupShow({
                                                 <TableHead className="w-10" />
                                                 <TableHead>Tanggal</TableHead>
                                                 <TableHead>Pair</TableHead>
+                                                <TableHead>Price</TableHead>
+                                                <TableHead>Amount</TableHead>
                                                 <TableHead>Tipe</TableHead>
                                                 <TableHead className="text-right">
                                                     Total
@@ -509,8 +511,20 @@ export default function AnalysisGroupShow({
                                                                 transaction.executed_at_label
                                                             }
                                                         </TableCell>
-                                                        <TableCell className="font-medium">
+                                                        <TableCell className="text-muted-foreground">
                                                             {transaction.pair}
+                                                        </TableCell>
+                                                        <TableCell className="tabular-nums">
+                                                            {formatMoney(
+                                                                transaction.price,
+                                                                transaction.quote_asset,
+                                                            )}
+                                                        </TableCell>
+                                                        <TableCell className="tabular-nums">
+                                                            {formatCrypto(
+                                                                transaction.amount,
+                                                                transaction.base_asset,
+                                                            )}
                                                         </TableCell>
                                                         <TableCell>
                                                             <TransactionTypeBadge
@@ -519,7 +533,7 @@ export default function AnalysisGroupShow({
                                                                 }
                                                             />
                                                         </TableCell>
-                                                        <TableCell className="text-right tabular-nums">
+                                                        <TableCell className="text-right font-medium">
                                                             {formatMoney(
                                                                 transaction.total,
                                                                 transaction.quote_asset,
@@ -653,9 +667,8 @@ export default function AnalysisGroupShow({
                                                         <TableCell className="text-xs tabular-nums">
                                                             {formatCrypto(
                                                                 transaction.amount,
-                                                            ) +
-                                                                ' ' +
-                                                                transaction.base_asset}
+                                                                transaction.base_asset,
+                                                            )}
                                                         </TableCell>
                                                         <TableCell className="text-right text-xs font-medium tabular-nums">
                                                             {formatMoney(
@@ -736,6 +749,7 @@ export default function AnalysisGroupShow({
                                                         <TableCell className="text-xs tabular-nums">
                                                             {formatCrypto(
                                                                 transaction.amount,
+                                                                transaction.base_asset,
                                                             )}
                                                         </TableCell>
                                                         <TableCell className="text-right text-xs font-medium tabular-nums">

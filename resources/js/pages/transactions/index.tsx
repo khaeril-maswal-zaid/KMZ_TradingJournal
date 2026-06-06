@@ -268,6 +268,7 @@ export default function TransactionsIndex({ transactions, filters }: Props) {
                                                 <TableCell className="py-0 text-right text-xs tabular-nums">
                                                     {formatCrypto(
                                                         transaction.amount,
+                                                        transaction.base_asset,
                                                     )}
                                                 </TableCell>
                                                 <TableCell className="py-0 text-right text-xs tabular-nums">

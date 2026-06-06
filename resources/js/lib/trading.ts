@@ -7,11 +7,11 @@ export function formatMoney(value: number, currency = 'USDT'): string {
     }).format(value)} ${currency}`;
 }
 
-export function formatCrypto(value: number): string {
-    return new Intl.NumberFormat('id-ID', {
+export function formatCrypto(value: number, baseAsset = 'BTC'): string {
+    return `${new Intl.NumberFormat('id-ID', {
         minimumFractionDigits: 0,
         maximumFractionDigits: 8,
-    }).format(value);
+    }).format(value)} ${baseAsset}`;
 }
 
 export function formatPercent(value: number): string {

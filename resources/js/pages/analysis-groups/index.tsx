@@ -23,7 +23,7 @@ import {
     TableHeader,
     TableRow,
 } from '@/components/ui/table';
-import { formatMoney, formatPercent } from '@/lib/trading';
+import { formatCrypto, formatMoney, formatPercent } from '@/lib/trading';
 import type {
     AnalysisGroup,
     Paginated,
@@ -123,6 +123,8 @@ export default function AnalysisGroupsIndex({
                                             <TableHead className="w-10" />
                                             <TableHead>Tanggal</TableHead>
                                             <TableHead>Pair</TableHead>
+                                            <TableHead>Price</TableHead>
+                                            <TableHead>Amount</TableHead>
                                             <TableHead>Tipe</TableHead>
                                             <TableHead className="text-right">
                                                 Total
@@ -181,8 +183,20 @@ export default function AnalysisGroupsIndex({
                                                                 transaction.executed_at_label
                                                             }
                                                         </TableCell>
-                                                        <TableCell className="font-medium">
+                                                        <TableCell className="text-muted-foreground">
                                                             {transaction.pair}
+                                                        </TableCell>
+                                                        <TableCell className="tabular-nums">
+                                                            {formatMoney(
+                                                                transaction.price,
+                                                                transaction.quote_asset,
+                                                            )}
+                                                        </TableCell>
+                                                        <TableCell className="tabular-nums">
+                                                            {formatCrypto(
+                                                                transaction.amount,
+                                                                transaction.base_asset,
+                                                            )}
                                                         </TableCell>
                                                         <TableCell>
                                                             <TransactionTypeBadge
@@ -191,7 +205,7 @@ export default function AnalysisGroupsIndex({
                                                                 }
                                                             />
                                                         </TableCell>
-                                                        <TableCell className="text-right tabular-nums">
+                                                        <TableCell className="text-right font-medium">
                                                             {formatMoney(
                                                                 transaction.total,
                                                                 transaction.quote_asset,
@@ -228,6 +242,7 @@ export default function AnalysisGroupsIndex({
                             <TableHeader>
                                 <TableRow>
                                     <TableHead>Key Trade Matching</TableHead>
+                                    <TableHead>Tanggal Eksekusi</TableHead>
                                     <TableHead className="text-right">
                                         Total Buy
                                     </TableHead>
@@ -244,6 +259,9 @@ export default function AnalysisGroupsIndex({
                                         Jumlah Transaksi
                                     </TableHead>
                                     <TableHead>Status</TableHead>
+                                    <TableHead className="text-right">
+                                        Aksi
+                                    </TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
@@ -262,10 +280,13 @@ export default function AnalysisGroupsIndex({
                                             <TableCell>
                                                 <Link
                                                     href={show.url(group.key)}
-                                                    className="font-medium hover:underline"
+                                                    className="text-muted-foreground hover:text-blue-600 hover:underline"
                                                 >
-                                                    {group.key}
+                                                    {`...${group.key.slice(-12)}`}
                                                 </Link>
+                                            </TableCell>
+                                            <TableCell className="text-muted-foreground">
+                                                {group.executed_at}
                                             </TableCell>
                                             <TableCell className="text-right tabular-nums">
                                                 {formatMoney(group.total_buy)}
