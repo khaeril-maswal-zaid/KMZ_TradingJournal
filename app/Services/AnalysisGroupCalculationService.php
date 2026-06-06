@@ -12,16 +12,26 @@ class AnalysisGroupCalculationService
     {
         $transactions = $analysisGroup->transactions()->get(['transactions.id', 'type', 'total', 'executed_at']);
         $executedAt = $transactions->where('type', 'SELL')->max('executed_at');
-
         $totalBuy = (float) $transactions->where('type', 'BUY')->sum(fn(Transaction $transaction) => (float) $transaction->total);
         $totalSell = (float) $transactions->where('type', 'SELL')->sum(fn(Transaction $transaction) => (float) $transaction->total);
+
+        // also calculate amounts and average prices
+        $totalBuyAmount = (float) $analysisGroup->transactions()->where('type', 'BUY')->sum('amount');
+        $totalSellAmount = (float) $analysisGroup->transactions()->where('type', 'SELL')->sum('amount');
+
+        $averageBuyPrice = $totalBuyAmount > 0 ? $totalBuy / $totalBuyAmount : 0;
+        $averageSellPrice = $totalSellAmount > 0 ? $totalSell / $totalSellAmount : 0;
         $profit = $totalSell - $totalBuy;
         $roiPercent = $totalBuy > 0 ? ($profit / $totalBuy) * 100 : 0;
 
         $analysisGroup->forceFill([
             'executed_at' => $executedAt,
             'total_buy' => $totalBuy,
+            'total_buy_amount' => $totalBuyAmount,
+            'average_buy_price' => $averageBuyPrice,
             'total_sell' => $totalSell,
+            'total_sell_amount' => $totalSellAmount,
+            'average_sell_price' => $averageSellPrice,
             'profit' => $profit,
             'roi_percent' => $roiPercent,
             'status' => $this->statusFor($profit),

@@ -577,13 +577,41 @@ export default function AnalysisGroupShow({
                     </div>
                 </div>
 
-                <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+                <div className="grid gap-4 md:grid-cols-3 xl:grid-cols-4">
+                    <ProfitCard
+                        title="Rata-rata Harga Beli"
+                        value={formatMoney(analysis.average_buy_price)}
+                        helper="Rata-rata harga pembelian"
+                        icon={Target}
+                        tone="blue"
+                    />
                     <ProfitCard
                         title="Total Buy"
                         value={formatMoney(analysis.total_buy)}
                         helper="Modal keluar"
                         icon={CircleDollarSign}
                         tone="blue"
+                    />
+                    <ProfitCard
+                        title="Jumlah Amount Beli"
+                        value={formatCrypto(analysis.total_buy_amount)}
+                        helper="Jumlah amount pembelian"
+                        icon={CircleDollarSign}
+                        tone="blue"
+                    />
+                    <ProfitCard
+                        title="Profit"
+                        value={formatMoney(analysis.profit)}
+                        helper="Sell dikurangi buy"
+                        icon={TrendingUp}
+                        tone={analysis.profit >= 0 ? 'green' : 'red'}
+                    />
+                    <ProfitCard
+                        title="Rata-rata Harga Jual"
+                        value={formatMoney(analysis.average_sell_price)}
+                        helper="Rata-rata harga penjualan"
+                        icon={TrendingUp}
+                        tone="amber"
                     />
                     <ProfitCard
                         title="Total Sell"
@@ -593,11 +621,11 @@ export default function AnalysisGroupShow({
                         tone="amber"
                     />
                     <ProfitCard
-                        title="Profit"
-                        value={formatMoney(analysis.profit)}
-                        helper="Sell dikurangi buy"
-                        icon={TrendingUp}
-                        tone={analysis.profit >= 0 ? 'green' : 'red'}
+                        title="Jumlah Amount Jual"
+                        value={formatCrypto(analysis.total_sell_amount)}
+                        helper="Jumlah amount penjualan"
+                        icon={ReceiptText}
+                        tone="amber"
                     />
                     <ProfitCard
                         title="ROI"

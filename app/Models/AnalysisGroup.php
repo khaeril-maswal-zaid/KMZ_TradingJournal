@@ -20,7 +20,11 @@ class AnalysisGroup extends Model
         'user_id',
         'key_analysis_group',
         'total_buy',
+        'total_buy_amount',
+        'average_buy_price',
         'total_sell',
+        'total_sell_amount',
+        'average_sell_price',
         'profit',
         'roi_percent',
         'status',
@@ -30,7 +34,11 @@ class AnalysisGroup extends Model
     {
         return [
             'total_buy' => 'decimal:10',
+            'total_buy_amount' => 'decimal:10',
+            'average_buy_price' => 'decimal:10',
             'total_sell' => 'decimal:10',
+            'total_sell_amount' => 'decimal:10',
+            'average_sell_price' => 'decimal:10',
             'profit' => 'decimal:10',
             'roi_percent' => 'decimal:4',
             'executed_at' => 'datetime',

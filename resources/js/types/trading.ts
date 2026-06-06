@@ -26,7 +26,11 @@ export type AnalysisGroup = {
     executed_at: string;
     key: string;
     total_buy: number;
+    total_buy_amount: number;
+    average_buy_price: number;
     total_sell: number;
+    total_sell_amount: number;
+    average_sell_price: number;
     profit: number;
     roi_percent: number;
     status: AnalysisStatus;
