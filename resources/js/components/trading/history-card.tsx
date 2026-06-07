@@ -2,18 +2,14 @@ import type { LucideIcon } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 
-export function ProfitCard({
+export function HistoryCard({
     title,
     value,
     helper,
-    icon: Icon,
-    tone = 'neutral',
 }: {
     title: string;
     value: string;
     helper?: string;
-    icon: LucideIcon;
-    tone?: 'neutral' | 'green' | 'red' | 'blue' | 'amber';
 }) {
     const tones = {
         neutral:
@@ -29,7 +25,7 @@ export function ProfitCard({
             <CardContent className="flex items-start justify-between gap-4 p-5">
                 <div className="min-w-0 space-y-2">
                     <p className="text-sm text-muted-foreground">{title}</p>
-                    <p className="truncate text-2xl font-semibold tracking-normal">
+                    <p className="truncate text-lg font-semibold tracking-normal">
                         {value}
                     </p>
                     {helper && (
@@ -37,9 +33,6 @@ export function ProfitCard({
                             {helper}
                         </p>
                     )}
-                </div>
-                <div className={cn('rounded-md p-2', tones[tone])}>
-                    <Icon className="size-5" />
                 </div>
             </CardContent>
         </Card>

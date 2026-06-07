@@ -28,7 +28,7 @@ class AnalysisGroupResource extends JsonResource
             'transactions_count' => $this->transactions_count ?? $this->transactions()->count(),
             'created_at' => $this->created_at?->toIso8601String(),
             'created_at_label' => $this->created_at?->format('d M Y'),
-            'transactions' => TransactionResource::collection($this->whenLoaded('transactions')),
+            // 'transactions' => TransactionResource::collection($this->whenLoaded('transactions')),
         ];
     }
 }

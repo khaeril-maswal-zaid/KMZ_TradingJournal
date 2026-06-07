@@ -65,6 +65,8 @@ export default function AnalysisGroupsIndex({
         );
     };
 
+    console.log(groups);
+
     const submit = (): void => {
         setProcessing(true);
 
@@ -241,7 +243,7 @@ export default function AnalysisGroupsIndex({
                         <Table>
                             <TableHeader>
                                 <TableRow>
-                                    <TableHead>Key Trade Matching</TableHead>
+                                    <TableHead>Key Matching</TableHead>
                                     <TableHead>Tanggal Eksekusi</TableHead>
                                     <TableHead className="text-right">
                                         Total Buy
@@ -289,15 +291,24 @@ export default function AnalysisGroupsIndex({
                                                 {group.executed_at}
                                             </TableCell>
                                             <TableCell className="text-right tabular-nums">
-                                                {formatMoney(group.total_buy)}
+                                                {formatMoney(
+                                                    group.total_buy,
+                                                    'USDT',
+                                                )}
                                             </TableCell>
                                             <TableCell className="text-right tabular-nums">
-                                                {formatMoney(group.total_sell)}
+                                                {formatMoney(
+                                                    group.total_sell,
+                                                    'USDT',
+                                                )}
                                             </TableCell>
                                             <TableCell
                                                 className={`text-right tabular-nums ${group.profit >= 0 ? 'text-emerald-600' : 'text-rose-600'}`}
                                             >
-                                                {formatMoney(group.profit)}
+                                                {formatMoney(
+                                                    group.profit,
+                                                    'USDT',
+                                                )}
                                             </TableCell>
                                             <TableCell className="text-right tabular-nums">
                                                 {formatPercent(

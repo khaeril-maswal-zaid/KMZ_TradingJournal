@@ -34,14 +34,14 @@ const mainNavItems: NavItem[] = [
         icon: LayoutDashboard,
     },
     {
-        title: 'Transaksi',
-        href: transIndex.url(),
-        icon: ReceiptText,
-    },
-    {
         title: 'Trade Matching',
         href: matchingsIndex.url(),
         icon: ChartCandlestick,
+    },
+    {
+        title: 'Transaksi',
+        href: transIndex.url(),
+        icon: ReceiptText,
     },
     {
         title: 'Deposit',

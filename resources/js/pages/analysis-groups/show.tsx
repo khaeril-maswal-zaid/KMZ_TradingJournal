@@ -57,6 +57,7 @@ import type {
 import { attach, detach, index } from '@/routes/tradematching';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { HistoryCard } from '@/components/trading/history-card';
 
 type Props = {
     group: ResourceItem<AnalysisGroup>;
@@ -211,6 +212,9 @@ export default function AnalysisGroupShow({
                             <Badge variant="outline">
                                 {analysis.transactions_count} transaksi
                             </Badge>
+                            <span className="text-xs">
+                                {analysis.executed_at}
+                            </span>
                         </div>
                         <h1 className="font-semibold tracking-normal">
                             {analysis.key}
@@ -269,6 +273,7 @@ export default function AnalysisGroupShow({
                                                 <p className="mt-1 font-medium tabular-nums">
                                                     {formatMoney(
                                                         average_buy_price,
+                                                        '',
                                                     )}
                                                 </p>
                                             </div>
@@ -279,6 +284,7 @@ export default function AnalysisGroupShow({
                                                 <p className="mt-1 font-medium tabular-nums">
                                                     {formatMoney(
                                                         total_buy_cost,
+                                                        '',
                                                     )}
                                                 </p>
                                             </div>
@@ -341,6 +347,7 @@ export default function AnalysisGroupShow({
                                                         <p className="mt-1 font-medium tabular-nums">
                                                             {formatMoney(
                                                                 computed.estimatedSellValue,
+                                                                '',
                                                             )}
                                                         </p>
                                                     </div>
@@ -351,6 +358,7 @@ export default function AnalysisGroupShow({
                                                         <p className="mt-1 font-medium tabular-nums">
                                                             {formatMoney(
                                                                 computed.estimatedProfit,
+                                                                '',
                                                             )}
                                                         </p>
                                                     </div>
@@ -398,6 +406,7 @@ export default function AnalysisGroupShow({
                                                         <p className="mt-1 font-medium tabular-nums">
                                                             {formatMoney(
                                                                 computed.targetSellPrice,
+                                                                '',
                                                             )}
                                                         </p>
                                                     </div>
@@ -408,6 +417,7 @@ export default function AnalysisGroupShow({
                                                         <p className="mt-1 font-medium tabular-nums">
                                                             {formatMoney(
                                                                 computed.estimatedProfit,
+                                                                '',
                                                             )}
                                                         </p>
                                                     </div>
@@ -418,6 +428,7 @@ export default function AnalysisGroupShow({
                                                         <p className="mt-1 font-medium tabular-nums">
                                                             {formatMoney(
                                                                 computed.estimatedSellValue,
+                                                                '',
                                                             )}
                                                         </p>
                                                     </div>
@@ -453,7 +464,7 @@ export default function AnalysisGroupShow({
                                     </p>
                                     <p className="mt-1 text-muted-foreground">
                                         Subtotal pilihan:{' '}
-                                        {formatMoney(selectedTotal)}
+                                        {formatMoney(selectedTotal, '')}
                                     </p>
                                 </div>
                                 <div className="max-h-96 overflow-auto rounded-lg border">
@@ -577,55 +588,27 @@ export default function AnalysisGroupShow({
                     </div>
                 </div>
 
-                <div className="grid gap-4 md:grid-cols-3 xl:grid-cols-4">
+                <div className="grid gap-4 md:grid-cols-3">
                     <ProfitCard
-                        title="Rata-rata Harga Beli"
-                        value={formatMoney(analysis.average_buy_price)}
-                        helper="Rata-rata harga pembelian"
-                        icon={Target}
-                        tone="blue"
-                    />
-                    <ProfitCard
-                        title="Total Buy"
-                        value={formatMoney(analysis.total_buy)}
-                        helper="Modal keluar"
-                        icon={CircleDollarSign}
-                        tone="blue"
-                    />
-                    <ProfitCard
-                        title="Jumlah Amount Beli"
-                        value={formatCrypto(analysis.total_buy_amount)}
-                        helper="Jumlah amount pembelian"
-                        icon={CircleDollarSign}
-                        tone="blue"
-                    />
-                    <ProfitCard
-                        title="Profit"
-                        value={formatMoney(analysis.profit)}
-                        helper="Sell dikurangi buy"
+                        title="Sisa Kepemilikan"
+                        value={formatCrypto(
+                            analysis.total_buy_amount -
+                                analysis?.total_sell_amount,
+                            buyTransactions.data[0]?.base_asset,
+                        )}
+                        helper="Jumlah amount buy dikurangi sell"
                         icon={TrendingUp}
                         tone={analysis.profit >= 0 ? 'green' : 'red'}
                     />
                     <ProfitCard
-                        title="Rata-rata Harga Jual"
-                        value={formatMoney(analysis.average_sell_price)}
-                        helper="Rata-rata harga penjualan"
+                        title="Profit"
+                        value={formatMoney(
+                            analysis.profit,
+                            buyTransactions.data[0]?.quote_asset,
+                        )}
+                        helper="Sell dikurangi buy"
                         icon={TrendingUp}
-                        tone="amber"
-                    />
-                    <ProfitCard
-                        title="Total Sell"
-                        value={formatMoney(analysis.total_sell)}
-                        helper="Uang kembali"
-                        icon={ReceiptText}
-                        tone="amber"
-                    />
-                    <ProfitCard
-                        title="Jumlah Amount Jual"
-                        value={formatCrypto(analysis.total_sell_amount)}
-                        helper="Jumlah amount penjualan"
-                        icon={ReceiptText}
-                        tone="amber"
+                        tone={analysis.profit >= 0 ? 'green' : 'red'}
                     />
                     <ProfitCard
                         title="ROI"
@@ -636,12 +619,39 @@ export default function AnalysisGroupShow({
                     />
                 </div>
 
-                <div className="grid gap-4 xl:grid-cols-2">
+                <div className="grid gap-2 xl:grid-cols-2">
                     <Card className="rounded-lg shadow-xs">
                         <CardHeader>
                             <CardTitle className="text-base">
                                 Riwayat BUY
                             </CardTitle>
+                            <div className="grid gap-2 xl:grid-cols-3">
+                                <HistoryCard
+                                    title="Rata-rata Harga Buy"
+                                    value={formatMoney(
+                                        analysis.average_buy_price,
+                                        '',
+                                    )}
+                                    helper={
+                                        buyTransactions.data[0]?.quote_asset
+                                    }
+                                />
+                                <HistoryCard
+                                    title="Total Buy"
+                                    value={formatMoney(analysis.total_buy, '')}
+                                    helper={
+                                        buyTransactions.data[0]?.quote_asset
+                                    }
+                                />
+                                <HistoryCard
+                                    title="Jumlah Amount Buy"
+                                    value={formatCrypto(
+                                        analysis.total_buy_amount,
+                                        '',
+                                    )}
+                                    helper={buyTransactions.data[0]?.base_asset}
+                                />
+                            </div>
                         </CardHeader>
                         <CardContent>
                             {buyTransactions.data.length === 0 ? (
@@ -683,16 +693,16 @@ export default function AnalysisGroupShow({
                                                                 transaction.executed_at_label
                                                             }
                                                         </TableCell>
-                                                        <TableCell className="text-xs font-medium">
+                                                        <TableCell className="text-xs text-muted-foreground">
                                                             {transaction.pair}
                                                         </TableCell>
-                                                        <TableCell className="text-xs font-medium">
+                                                        <TableCell className="text-xs tabular-nums">
                                                             {formatMoney(
                                                                 transaction.price,
                                                                 transaction.quote_asset,
                                                             )}
                                                         </TableCell>
-                                                        <TableCell className="text-xs tabular-nums">
+                                                        <TableCell className="text-xs font-medium">
                                                             {formatCrypto(
                                                                 transaction.amount,
                                                                 transaction.base_asset,
@@ -733,6 +743,36 @@ export default function AnalysisGroupShow({
                             <CardTitle className="text-base">
                                 Riwayat SELL
                             </CardTitle>
+
+                            <div className="grid gap-2 xl:grid-cols-3">
+                                <HistoryCard
+                                    title="Rata-rata Harga Sell"
+                                    value={formatMoney(
+                                        analysis.average_sell_price,
+                                        '',
+                                    )}
+                                    helper={
+                                        sellTransactions.data[0]?.quote_asset
+                                    }
+                                />
+                                <HistoryCard
+                                    title="Total Sell"
+                                    value={formatMoney(analysis.total_sell, '')}
+                                    helper={
+                                        sellTransactions.data[0]?.quote_asset
+                                    }
+                                />
+                                <HistoryCard
+                                    title="Jumlah Amount Sell"
+                                    value={formatCrypto(
+                                        analysis.total_sell_amount,
+                                        '',
+                                    )}
+                                    helper={
+                                        sellTransactions.data[0]?.base_asset
+                                    }
+                                />
+                            </div>
                         </CardHeader>
                         <CardContent>
                             {sellTransactions.data.length === 0 ? (
@@ -749,6 +789,9 @@ export default function AnalysisGroupShow({
                                                 </TableHead>
                                                 <TableHead className="text-xs font-semibold">
                                                     Pair
+                                                </TableHead>
+                                                <TableHead className="text-xs font-semibold">
+                                                    Harga
                                                 </TableHead>
                                                 <TableHead className="text-xs font-semibold">
                                                     Jumlah
@@ -771,10 +814,16 @@ export default function AnalysisGroupShow({
                                                                 transaction.executed_at_label
                                                             }
                                                         </TableCell>
-                                                        <TableCell className="text-xs font-medium">
+                                                        <TableCell className="text-xs text-muted-foreground">
                                                             {transaction.pair}
                                                         </TableCell>
                                                         <TableCell className="text-xs tabular-nums">
+                                                            {formatMoney(
+                                                                transaction.price,
+                                                                transaction.quote_asset,
+                                                            )}
+                                                        </TableCell>
+                                                        <TableCell className="text-xs font-medium">
                                                             {formatCrypto(
                                                                 transaction.amount,
                                                                 transaction.base_asset,
@@ -810,88 +859,6 @@ export default function AnalysisGroupShow({
                         </CardContent>
                     </Card>
                 </div>
-
-                <Card className="rounded-lg shadow-xs">
-                    <CardHeader>
-                        <CardTitle className="text-base">
-                            Hasil Trade Matching
-                        </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        {sellBreakdown.length === 0 ? (
-                            <div className="rounded-lg border border-dashed p-8 text-center text-sm text-muted-foreground">
-                                Tambahkan transaksi SELL untuk melihat profit
-                                per hasil penjualan.
-                            </div>
-                        ) : (
-                            <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-                                {sellBreakdown.map((item) => (
-                                    <div
-                                        key={item.id}
-                                        className="rounded-lg border bg-card p-4 shadow-xs"
-                                    >
-                                        <div className="flex items-start justify-between gap-3">
-                                            <div>
-                                                <p className="font-medium">
-                                                    {item.label}
-                                                </p>
-                                                <p className="mt-1 text-xs text-muted-foreground">
-                                                    {
-                                                        item.transaction.data
-                                                            .executed_at_label
-                                                    }
-                                                </p>
-                                            </div>
-                                            <ProfitBadge status={item.status} />
-                                        </div>
-                                        <div className="mt-4 space-y-3 text-sm">
-                                            <div className="flex justify-between gap-3">
-                                                <span className="text-muted-foreground">
-                                                    Subtotal BUY
-                                                </span>
-                                                <span className="font-medium tabular-nums">
-                                                    {formatMoney(
-                                                        item.subtotal_buy,
-                                                    )}
-                                                </span>
-                                            </div>
-                                            <div className="flex justify-between gap-3">
-                                                <span className="text-muted-foreground">
-                                                    Subtotal SELL
-                                                </span>
-                                                <span className="font-medium tabular-nums">
-                                                    {formatMoney(
-                                                        item.subtotal_sell,
-                                                    )}
-                                                </span>
-                                            </div>
-                                            <div className="flex justify-between gap-3 border-t pt-3">
-                                                <span className="text-muted-foreground">
-                                                    Profit
-                                                </span>
-                                                <span
-                                                    className={`font-semibold tabular-nums ${item.profit >= 0 ? 'text-emerald-600' : 'text-rose-600'}`}
-                                                >
-                                                    {formatMoney(item.profit)}
-                                                </span>
-                                            </div>
-                                            <div className="flex justify-between gap-3">
-                                                <span className="text-muted-foreground">
-                                                    ROI
-                                                </span>
-                                                <span className="font-medium tabular-nums">
-                                                    {formatPercent(
-                                                        item.roi_percent,
-                                                    )}
-                                                </span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        )}
-                    </CardContent>
-                </Card>
 
                 <AlertDialog
                     open={deleteConfirmOpen}

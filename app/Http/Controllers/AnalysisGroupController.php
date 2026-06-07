@@ -70,12 +70,6 @@ class AnalysisGroupController extends Controller
             'buyTransactions' => TransactionResource::collection($buyTransactions),
             'sellTransactions' => TransactionResource::collection($sellTransactions),
             'sellPlannerSummary' => $calculator->sellPlannerSummary($buyTransactions),
-            'sellBreakdown' => collect($calculator->sellBreakdown((float) $analysisGroup->total_buy, $sellTransactions))
-                ->map(fn(array $item) => [
-                    ...$item,
-                    'transaction' => TransactionResource::make($item['transaction']),
-                ])
-                ->values(),
             'availableTransactions' => TransactionResource::collection(
                 Transaction::query()
                     ->with('analysisGroupAssignment.analysisGroup')

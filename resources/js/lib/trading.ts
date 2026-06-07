@@ -1,13 +1,13 @@
 import type { AnalysisStatus, TransactionType } from '@/types/trading';
 
-export function formatMoney(value: number, currency = 'USDT'): string {
-    return `${new Intl.NumberFormat('id-ID', {
+export function formatMoney(value: number, currency: string): string {
+    return `$${new Intl.NumberFormat('id-ID', {
         minimumFractionDigits: 2,
         maximumFractionDigits: 2,
     }).format(value)} ${currency}`;
 }
 
-export function formatCrypto(value: number, baseAsset = 'BTC'): string {
+export function formatCrypto(value: number, baseAsset: string): string {
     return `${new Intl.NumberFormat('id-ID', {
         minimumFractionDigits: 0,
         maximumFractionDigits: 8,
