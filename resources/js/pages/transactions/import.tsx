@@ -13,16 +13,25 @@ import { index } from '@/routes/transactions';
 
 export default function TransactionsImport() {
     const {
+        version,
+        switchVersion,
         rows,
+        rowsV2,
         rowErrors,
+        rowErrorsV2,
         payload,
         payloadIndexByRowId,
         summary,
         addRow,
+        addRowV2,
         removeRow,
+        removeRowV2,
         clearRows,
+        clearRowsV2,
         updateCell,
+        updateCellV2,
         pasteCells,
+        pasteCellsV2,
     } = useTransactionImportTable();
 
     const page = usePage();
@@ -55,12 +64,21 @@ export default function TransactionsImport() {
                 onError: (er) => toast.error('Data transaksi tidak valid.'),
                 onSuccess: () => {
                     clearRows();
+                    clearRowsV2();
                     setShowValidation(false);
                 },
                 onFinish: () => setProcessing(false),
             },
         );
     };
+
+    const currentRows = version === 'v1' ? rows : rowsV2;
+    const currentRowErrors = version === 'v1' ? rowErrors : rowErrorsV2;
+    const currentAddRow = version === 'v1' ? addRow : addRowV2;
+    const currentRemoveRow = version === 'v1' ? removeRow : removeRowV2;
+    const currentClearRows = version === 'v1' ? clearRows : clearRowsV2;
+    const currentUpdateCell = version === 'v1' ? updateCell : updateCellV2;
+    const currentPasteCells = version === 'v1' ? pasteCells : pasteCellsV2;
 
     return (
         <>
@@ -81,6 +99,28 @@ export default function TransactionsImport() {
                             </p>
                         </div>
                     </div>
+                    <div className="flex gap-2">
+                        <button
+                            onClick={() => switchVersion('v1')}
+                            className={`rounded-lg border px-4 py-2 text-sm font-medium transition-colors ${
+                                version === 'v1'
+                                    ? 'border-primary bg-primary text-primary-foreground'
+                                    : 'border-input bg-background hover:bg-accent'
+                            }`}
+                        >
+                            Format V1
+                        </button>
+                        <button
+                            onClick={() => switchVersion('v2')}
+                            className={`rounded-lg border px-4 py-2 text-sm font-medium transition-colors ${
+                                version === 'v2'
+                                    ? 'border-primary bg-primary text-primary-foreground'
+                                    : 'border-input bg-background hover:bg-accent'
+                            }`}
+                        >
+                            Format V2
+                        </button>
+                    </div>
                 </div>
 
                 <ImportSummaryCards summary={summary} />
@@ -88,22 +128,23 @@ export default function TransactionsImport() {
                 <ImportToolbar
                     summary={summary}
                     processing={processing}
-                    onAddRow={addRow}
-                    onClearRows={clearRows}
+                    onAddRow={currentAddRow}
+                    onClearRows={currentClearRows}
                     onImport={handleImport}
                 />
 
                 <EditableTransactionTable
-                    rows={rows}
-                    rowErrors={rowErrors}
+                    version={version}
+                    rows={currentRows as any}
+                    rowErrors={currentRowErrors as any}
                     payloadIndexByRowId={payloadIndexByRowId}
                     serverErrors={errors}
                     showValidation={showValidation}
                     processing={processing}
-                    onChange={updateCell}
-                    onPasteCells={pasteCells}
-                    onAddRow={addRow}
-                    onRemoveRow={removeRow}
+                    onChange={currentUpdateCell as any}
+                    onPasteCells={currentPasteCells as any}
+                    onAddRow={currentAddRow}
+                    onRemoveRow={currentRemoveRow}
                 />
             </div>
         </>
