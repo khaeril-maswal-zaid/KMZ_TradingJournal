@@ -148,116 +148,59 @@ export default function Dashboard({
                     />
                 </div>
 
-                <div className="grid gap-4 xl:grid-cols-[1.35fr_1fr]">
-                    <Card className="rounded-lg shadow-xs">
-                        <CardHeader className="flex-row items-center justify-between">
-                            <CardTitle className="text-base">
-                                Profit Bulanan
-                            </CardTitle>
-                            <Button asChild variant="ghost" size="sm">
-                                <Link href="/analysis-groups">
-                                    Lihat Analisa
-                                    <ArrowRight className="size-4" />
-                                </Link>
-                            </Button>
-                        </CardHeader>
-                        <CardContent>
-                            {monthlyProfit.length === 0 ? (
-                                <div className="flex h-64 items-center justify-center rounded-lg border border-dashed text-sm text-muted-foreground">
-                                    Belum ada profit bulanan. Buat grup analisa
-                                    untuk melihat grafik.
-                                </div>
-                            ) : (
-                                <div className="flex h-64 items-end gap-3">
-                                    {monthlyProfit.map((item) => {
-                                        const height = Math.max(
-                                            (Math.abs(item.profit) /
-                                                maxAbsProfit) *
-                                                100,
-                                            6,
-                                        );
+                <Card className="rounded-lg shadow-xs">
+                    <CardHeader className="flex-row items-center justify-between">
+                        <CardTitle className="text-base">
+                            Profit Bulanan
+                        </CardTitle>
+                        <Button asChild variant="ghost" size="sm">
+                            <Link href="/analysis-groups">
+                                Lihat Analisa
+                                <ArrowRight className="size-4" />
+                            </Link>
+                        </Button>
+                    </CardHeader>
+                    <CardContent>
+                        {monthlyProfit.length === 0 ? (
+                            <div className="flex h-64 items-center justify-center rounded-lg border border-dashed text-sm text-muted-foreground">
+                                Belum ada profit bulanan. Buat grup analisa
+                                untuk melihat grafik.
+                            </div>
+                        ) : (
+                            <div className="flex h-64 items-end gap-3">
+                                {monthlyProfit.map((item) => {
+                                    const height = Math.max(
+                                        (Math.abs(item.profit) / maxAbsProfit) *
+                                            100,
+                                        6,
+                                    );
 
-                                        return (
-                                            <div
-                                                key={item.month}
-                                                className="flex flex-1 flex-col items-center gap-2"
-                                            >
-                                                <div className="flex h-48 w-full items-end rounded-md bg-muted/60 px-2">
-                                                    <div
-                                                        className={`w-full rounded-t-md ${item.profit >= 0 ? 'bg-emerald-500' : 'bg-rose-500'}`}
-                                                        style={{
-                                                            height: `${height}%`,
-                                                        }}
-                                                        title={formatMoney(
-                                                            item.profit,
-                                                        )}
-                                                    />
-                                                </div>
-                                                <span className="w-full truncate text-center text-xs text-muted-foreground">
-                                                    {item.label}
-                                                </span>
+                                    return (
+                                        <div
+                                            key={item.month}
+                                            className="flex flex-1 flex-col items-center gap-2"
+                                        >
+                                            <div className="flex h-48 w-full items-end rounded-md bg-muted/60 px-2">
+                                                <div
+                                                    className={`w-full rounded-t-md ${item.profit >= 0 ? 'bg-emerald-500' : 'bg-rose-500'}`}
+                                                    style={{
+                                                        height: `${height}%`,
+                                                    }}
+                                                    title={formatMoney(
+                                                        item.profit,
+                                                    )}
+                                                />
                                             </div>
-                                        );
-                                    })}
-                                </div>
-                            )}
-                        </CardContent>
-                    </Card>
-
-                    <Card className="rounded-lg shadow-xs">
-                        <CardHeader>
-                            <CardTitle className="text-base">
-                                Grup Analisa Terbaru
-                            </CardTitle>
-                        </CardHeader>
-                        <CardContent className="space-y-3">
-                            {recentGroups.data.length === 0 ? (
-                                <div className="rounded-lg border border-dashed p-6 text-center text-sm text-muted-foreground">
-                                    Belum ada grup analisa.
-                                </div>
-                            ) : (
-                                recentGroups.data.map((group) => (
-                                    <Link
-                                        key={group.id}
-                                        href={`/analysis-groups/${group.id}`}
-                                        className="block rounded-lg border p-4 transition hover:border-primary/40 hover:bg-muted/40"
-                                    >
-                                        <div className="flex items-start justify-between gap-3">
-                                            <div className="min-w-0">
-                                                <p className="truncate font-medium">
-                                                    ...{group.key.slice(-12)}
-                                                </p>
-                                                <p className="mt-1 text-xs text-muted-foreground">
-                                                    {group.transactions_count}{' '}
-                                                    transaksi
-                                                </p>
-                                            </div>
-                                            <ProfitBadge
-                                                status={group.status}
-                                            />
-                                        </div>
-                                        <div className="mt-3 flex items-center justify-between text-sm">
-                                            <span
-                                                className={
-                                                    group.profit >= 0
-                                                        ? 'text-emerald-600'
-                                                        : 'text-rose-600'
-                                                }
-                                            >
-                                                {formatMoney(group.profit)}
-                                            </span>
-                                            <span className="text-muted-foreground">
-                                                {formatPercent(
-                                                    group.roi_percent,
-                                                )}
+                                            <span className="w-full truncate text-center text-xs text-muted-foreground">
+                                                {item.label}
                                             </span>
                                         </div>
-                                    </Link>
-                                ))
-                            )}
-                        </CardContent>
-                    </Card>
-                </div>
+                                    );
+                                })}
+                            </div>
+                        )}
+                    </CardContent>
+                </Card>
 
                 <Card className="rounded-lg shadow-xs">
                     <CardHeader className="flex-row items-center justify-between">
@@ -316,7 +259,7 @@ export default function Dashboard({
                                                         {asset.asset}
                                                     </Badge>
                                                 </TableCell>
-                                                <TableCell className="font-medium">
+                                                <TableCell className="text-muted-foreground">
                                                     {asset.pair}
                                                 </TableCell>
                                                 <TableCell className="text-right font-mono">

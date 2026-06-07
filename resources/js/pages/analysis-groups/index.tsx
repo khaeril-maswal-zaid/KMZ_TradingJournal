@@ -282,40 +282,40 @@ export default function AnalysisGroupsIndex({
                                             <TableCell>
                                                 <Link
                                                     href={show.url(group.key)}
-                                                    className="text-muted-foreground hover:text-blue-600 hover:underline"
+                                                    className="py-0 text-xs text-muted-foreground hover:text-blue-600 hover:underline"
                                                 >
                                                     {`...${group.key.slice(-12)}`}
                                                 </Link>
                                             </TableCell>
-                                            <TableCell className="text-muted-foreground">
+                                            <TableCell className="py-0 text-xs text-muted-foreground">
                                                 {group.executed_at}
                                             </TableCell>
-                                            <TableCell className="text-right tabular-nums">
+                                            <TableCell className="py-0 text-right text-xs tabular-nums">
                                                 {formatMoney(
                                                     group.total_buy,
                                                     'USDT',
                                                 )}
                                             </TableCell>
-                                            <TableCell className="text-right tabular-nums">
+                                            <TableCell className="py-0 text-right text-xs tabular-nums">
                                                 {formatMoney(
                                                     group.total_sell,
                                                     'USDT',
                                                 )}
                                             </TableCell>
                                             <TableCell
-                                                className={`text-right tabular-nums ${group.profit >= 0 ? 'text-emerald-600' : 'text-rose-600'}`}
+                                                className={`py-0 text-right text-xs tabular-nums ${group.profit >= 0 ? 'text-emerald-600' : 'text-rose-600'}`}
                                             >
                                                 {formatMoney(
                                                     group.profit,
                                                     'USDT',
                                                 )}
                                             </TableCell>
-                                            <TableCell className="text-right tabular-nums">
+                                            <TableCell className="py-0 text-right text-xs tabular-nums">
                                                 {formatPercent(
                                                     group.roi_percent,
                                                 )}
                                             </TableCell>
-                                            <TableCell className="text-center">
+                                            <TableCell className="py-0 text-center text-xs">
                                                 {group.transactions_count}
                                             </TableCell>
                                             <TableCell>
@@ -323,7 +323,7 @@ export default function AnalysisGroupsIndex({
                                                     status={group.status}
                                                 />
                                             </TableCell>
-                                            <TableCell className="text-right">
+                                            <TableCell className="py-0 text-right text-xs">
                                                 <Button
                                                     variant="ghost"
                                                     size="sm"
@@ -344,6 +344,7 @@ export default function AnalysisGroupsIndex({
                                 )}
                             </TableBody>
                         </Table>
+
                         <AlertDialog
                             open={deleteConfirmOpen}
                             onOpenChange={setDeleteConfirmOpen}

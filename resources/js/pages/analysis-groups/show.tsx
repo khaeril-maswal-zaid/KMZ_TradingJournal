@@ -321,7 +321,7 @@ export default function AnalysisGroupShow({
                                                     </Label>
                                                     <div className="mt-1 flex items-center gap-2">
                                                         <Input
-                                                            type="number"
+                                                            type=""
                                                             className="w-full rounded-md border p-2 text-right tabular-nums"
                                                             value={targetSellPrice.toFixed(
                                                                 2,
@@ -382,7 +382,7 @@ export default function AnalysisGroupShow({
                                                     </Label>
                                                     <div className="mt-1 flex items-center gap-2">
                                                         <Input
-                                                            type="number"
+                                                            type=""
                                                             className="w-full rounded-md border p-2 text-right tabular-nums"
                                                             value={targetRoi}
                                                             onChange={(e) =>
@@ -588,7 +588,7 @@ export default function AnalysisGroupShow({
                     </div>
                 </div>
 
-                <div className="grid gap-4 md:grid-cols-3">
+                <div className="grid gap-4 sm:grid-cols-3 sm:gap-2">
                     <ProfitCard
                         title="Sisa Kepemilikan"
                         value={formatCrypto(
@@ -625,7 +625,7 @@ export default function AnalysisGroupShow({
                             <CardTitle className="text-base">
                                 Riwayat BUY
                             </CardTitle>
-                            <div className="grid gap-2 xl:grid-cols-3">
+                            <div className="grid gap-2 sm:grid-cols-3">
                                 <HistoryCard
                                     title="Rata-rata Harga Buy"
                                     value={formatMoney(
@@ -744,7 +744,7 @@ export default function AnalysisGroupShow({
                                 Riwayat SELL
                             </CardTitle>
 
-                            <div className="grid gap-2 xl:grid-cols-3">
+                            <div className="grid gap-2 sm:grid-cols-3">
                                 <HistoryCard
                                     title="Rata-rata Harga Sell"
                                     value={formatMoney(

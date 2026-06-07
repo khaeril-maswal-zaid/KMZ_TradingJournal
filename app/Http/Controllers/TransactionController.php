@@ -4,10 +4,13 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\ImportTransactionsRequest;
 use App\Http\Resources\TransactionResource;
+use App\Models\AnalysisGroup;
 use App\Models\Transaction;
 use App\Services\TransactionImportService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -58,6 +61,33 @@ class TransactionController extends Controller
         Inertia::flash('toast', [
             'type' => 'success',
             'message' => $transactions->count() . ' transaksi berhasil diimport.',
+        ]);
+
+        return to_route('transactions.index');
+    }
+
+    public function clear(Request $request): RedirectResponse
+    {
+        $request->validate([
+            'password' => 'required|string',
+        ]);
+
+        $user = $request->user();
+
+        if (! Hash::check($request->input('password'), $user->password)) {
+            return back()->withErrors([
+                'password' => 'Password tidak valid.',
+            ]);
+        }
+
+        DB::transaction(function () use ($user): void {
+            AnalysisGroup::where('user_id', $user->id)->delete();
+            Transaction::where('user_id', $user->id)->delete();
+        });
+
+        Inertia::flash('toast', [
+            'type' => 'success',
+            'message' => 'Semua transaksi dan analisis Anda berhasil dibersihkan.',
         ]);
 
         return to_route('transactions.index');

@@ -347,6 +347,54 @@ const extractValueAndCoin = (
     };
 };
 
+const formatPairWithSlash = (pair: string): string => {
+    const normalized = pair.trim().toUpperCase();
+
+    if (!normalized) {
+        return '';
+    }
+
+    if (normalized.includes('/')) {
+        return normalized;
+    }
+
+    const knownQuotes = [
+        'USDT',
+        'USDC',
+        'BUSD',
+        'TUSD',
+        'USDP',
+        'USD',
+        'EUR',
+        'TRY',
+        'GBP',
+        'AUD',
+        'JPY',
+        'KRW',
+        'BTC',
+        'ETH',
+        'BNB',
+        'MATIC',
+        'ADA',
+        'SOL',
+        'DOT',
+        'LINK',
+        'DOGE',
+    ];
+
+    for (const quote of knownQuotes) {
+        if (normalized.endsWith(quote) && normalized.length > quote.length) {
+            return `${normalized.slice(0, -quote.length)}/${quote}`;
+        }
+    }
+
+    if (normalized.length > 3) {
+        return `${normalized.slice(0, -3)}/${normalized.slice(-3)}`;
+    }
+
+    return normalized;
+};
+
 // Parse V2 format to V1 format
 export const parseV2toV1 = (
     rowV2: TransactionImportRowV2,
@@ -365,7 +413,7 @@ export const parseV2toV1 = (
     return {
         id: rowV2.id,
         executed_at: parseDateV2(rowV2.time),
-        pair: rowV2.pair.toUpperCase(),
+        pair: formatPairWithSlash(rowV2.pair),
         base_asset: baseCoin,
         quote_asset: quoteCoin,
         type: rowV2.side.toUpperCase(),

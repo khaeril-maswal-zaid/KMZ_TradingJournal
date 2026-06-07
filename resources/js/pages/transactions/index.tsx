@@ -1,11 +1,24 @@
 import { Head, Link, router } from '@inertiajs/react';
 import {
+    AlertTriangle,
     ArrowUpDown,
     FileSpreadsheet,
     MoreHorizontal,
     Search,
+    Trash2,
 } from 'lucide-react';
 import { useState } from 'react';
+import { toast } from 'sonner';
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { TransactionTypeBadge } from '@/components/trading/transaction-type-badge';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -34,9 +47,10 @@ import {
 } from '@/components/ui/table';
 import { formatCrypto, formatMoney } from '@/lib/trading';
 import type { Paginated, Transaction } from '@/types';
-import { index as indexTrans } from '@/routes/transactions';
+import { clear, index as indexTrans } from '@/routes/transactions';
 import { index as indexMatching } from '@/routes/tradematching';
 import { show } from '@/routes/tradematching';
+import { Label } from '@/components/ui/label';
 
 type Filters = {
     search: string;
@@ -63,6 +77,8 @@ function paginationLabel(label: string): string {
 
 export default function TransactionsIndex({ transactions, filters }: Props) {
     const [search, setSearch] = useState(filters.search);
+    const [clearConfirmOpen, setClearConfirmOpen] = useState(false);
+    const [password, setPassword] = useState('');
 
     const visit = (nextFilters: Partial<Filters>): void => {
         const merged = { ...filters, ...nextFilters };
@@ -91,6 +107,37 @@ export default function TransactionsIndex({ transactions, filters }: Props) {
         });
     };
 
+    const clearUserData = (password: string): void => {
+        setClearConfirmOpen(true);
+
+        if (password === null) {
+            return;
+        }
+
+        if (!password.trim()) {
+            toast.error('Password wajib diisi.');
+            return;
+        }
+
+        router.post(
+            clear.url(),
+            { password },
+            {
+                preserveScroll: true,
+                onError: () => {
+                    toast.error('Password salah atau terjadi kesalahan.');
+                },
+                onSuccess: () => {
+                    toast.success('Data berhasil dibersihkan.');
+                },
+                onFinish: () => {
+                    setClearConfirmOpen(false);
+                    setPassword('');
+                },
+            },
+        );
+    };
+
     return (
         <>
             <Head title="Transaksi" />
@@ -105,12 +152,21 @@ export default function TransactionsIndex({ transactions, filters }: Props) {
                             trading.
                         </p>
                     </div>
-                    <Button asChild>
-                        <Link href="/transactions/import">
-                            <FileSpreadsheet className="size-4" />
-                            Import Data
-                        </Link>
-                    </Button>
+                    <div className="flex flex-wrap gap-2">
+                        <Button
+                            variant="secondary"
+                            onClick={() => setClearConfirmOpen(true)}
+                        >
+                            <Trash2 className="size-4" />
+                            Bersihkan data
+                        </Button>
+                        <Button asChild>
+                            <Link href="/transactions/import">
+                                <FileSpreadsheet className="size-4" />
+                                Import Data
+                            </Link>
+                        </Button>
+                    </div>
                 </div>
 
                 <Card className="rounded-lg shadow-xs">
@@ -380,6 +436,46 @@ export default function TransactionsIndex({ transactions, filters }: Props) {
                         </div>
                     </CardContent>
                 </Card>
+
+                <AlertDialog
+                    open={clearConfirmOpen}
+                    onOpenChange={setClearConfirmOpen}
+                >
+                    <AlertDialogContent>
+                        <AlertDialogHeader>
+                            <AlertDialogTitle>
+                                Bersihkan Data Transaksi dan Analisis
+                            </AlertDialogTitle>
+                            <AlertDialogDescription>
+                                Tindakan ini akan menghapus semua transaksi dan
+                                analisis Anda. Lanjutkan?
+                            </AlertDialogDescription>
+                        </AlertDialogHeader>
+
+                        <div className="bg-warning items-center gap-3 rounded-lg text-sm text-red-500">
+                            <Label>
+                                Masukkan password Anda untuk mengonfirmasi.
+                            </Label>
+                            <Input
+                                type="password"
+                                placeholder="Password"
+                                className="mt-1"
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
+                            />
+                        </div>
+
+                        <AlertDialogFooter>
+                            <AlertDialogCancel>Batal</AlertDialogCancel>
+                            <AlertDialogAction
+                                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                                onClick={() => clearUserData(password)}
+                            >
+                                Bersihkan Data
+                            </AlertDialogAction>
+                        </AlertDialogFooter>
+                    </AlertDialogContent>
+                </AlertDialog>
             </div>
         </>
     );

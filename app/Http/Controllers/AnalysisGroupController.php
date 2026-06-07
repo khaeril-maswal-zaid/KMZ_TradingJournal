@@ -25,7 +25,7 @@ class AnalysisGroupController extends Controller
                 AnalysisGroup::query()
                     ->withCount('transactions')
                     ->latest()
-                    ->paginate(12)
+                    ->paginate(15)
             ),
 
             'availableTransactions' => TransactionResource::collection(
@@ -53,7 +53,8 @@ class AnalysisGroupController extends Controller
 
         Inertia::flash('toast', ['type' => 'success', 'message' => 'Grup analisa berhasil dibuat.']);
 
-        return to_route('tradematching.show', $group);
+        return to_route('tradematching.index');
+        // return to_route('tradematching.show', $group);
     }
 
     public function show(AnalysisGroup $analysisGroup, AnalysisGroupCalculationService $calculator): Response
@@ -74,7 +75,7 @@ class AnalysisGroupController extends Controller
                 Transaction::query()
                     ->with('analysisGroupAssignment.analysisGroup')
                     ->latest('executed_at')
-                    ->limit(80)
+                    // ->limit(80)
                     ->get()
             ),
         ]);

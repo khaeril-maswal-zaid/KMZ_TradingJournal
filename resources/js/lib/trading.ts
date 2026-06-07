@@ -11,7 +11,7 @@ export function formatCrypto(value: number, baseAsset: string | null): string {
     return `${new Intl.NumberFormat('id-ID', {
         minimumFractionDigits: 0,
         maximumFractionDigits: 8,
-    }).format(value)} ${baseAsset || '-'}`;
+    }).format(value)} ${baseAsset}`;
 }
 
 export function formatPercent(value: number): string {

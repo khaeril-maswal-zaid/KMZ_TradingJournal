@@ -12,6 +12,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('transactions/import', [TransactionController::class, 'import'])->name('transactions.import');
     Route::post('transactions/import', [TransactionController::class, 'storeImport'])->name('transactions.importstore');
     Route::get('transactions', [TransactionController::class, 'index'])->name('transactions.index');
+    Route::post('transactions/clear', [TransactionController::class, 'clear'])->name('transactions.clear');
 
     Route::get('trade-matching', [AnalysisGroupController::class, 'index'])->name('tradematching.index');
     Route::post('trade-matching', [AnalysisGroupController::class, 'store'])->name('tradematching.store');
