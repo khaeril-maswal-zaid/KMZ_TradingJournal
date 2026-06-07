@@ -3,30 +3,38 @@
 namespace App\Http\Controllers;
 
 use App\Http\Resources\AnalysisGroupResource;
+use App\Http\Resources\PortfolioAssetResource;
 use App\Http\Resources\TransactionResource;
 use App\Models\AnalysisGroup;
 use App\Models\Transaction;
+use App\Services\PortfolioSummaryService;
+use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 use Inertia\Response;
 
 class DashboardController extends Controller
 {
-    public function __invoke(): Response
+    public function __invoke(PortfolioSummaryService $portfolioService): Response
     {
-        $totalBuy = (float) Transaction::where('type', 'BUY')->sum('total');
-        $totalSell = (float) Transaction::where('type', 'SELL')->sum('total');
-        $totalProfit = (float) AnalysisGroup::sum('profit');
+        $user = Auth::user();
+        $totalBuy = (float) Transaction::where('user_id', $user->id)->where('type', 'BUY')->sum('total');
+        $totalSell = (float) Transaction::where('user_id', $user->id)->where('type', 'SELL')->sum('total');
+        $totalProfit = (float) AnalysisGroup::where('user_id', $user->id)->sum('profit');
 
         $monthlyProfit = AnalysisGroup::query()
-            ->selectRaw("strftime('%Y-%m', created_at) as month, sum(profit) as profit")
+            ->where('user_id', $user->id)
+            ->selectRaw("strftime('%Y-%m', executed_at) as month, sum(profit) as profit")
             ->groupBy('month')
             ->orderBy('month')
             ->get()
-            ->map(fn ($row) => [
+            ->map(fn($row) => [
                 'month' => $row->month,
-                'label' => date('M Y', strtotime($row->month.'-01')),
+                'label' => date('M Y', strtotime($row->month . '-01')),
                 'profit' => (float) $row->profit,
             ]);
+
+        // Get portfolio assets summary
+        $portfolioAssets = $portfolioService->getAssetsSummary($user);
 
         return Inertia::render('dashboard', [
             'stats' => [
@@ -34,19 +42,16 @@ class DashboardController extends Controller
                 'total_buy' => $totalBuy,
                 'total_sell' => $totalSell,
                 'total_roi' => $totalBuy > 0 ? (($totalSell - $totalBuy) / $totalBuy) * 100 : 0,
-                'transactions_count' => Transaction::count(),
-                'analysis_groups_count' => AnalysisGroup::count(),
+                'transactions_count' => Transaction::where('user_id', $user->id)->count(),
+                'analysis_groups_count' => AnalysisGroup::where('user_id', $user->id)->count(),
             ],
+
             'monthlyProfit' => $monthlyProfit,
-            'recentTransactions' => TransactionResource::collection(
-                Transaction::query()
-                    ->with('analysisGroupAssignment.analysisGroup')
-                    ->latest('executed_at')
-                    ->limit(6)
-                    ->get()
-            ),
+            'portfolioAssets' => PortfolioAssetResource::collection($portfolioAssets),
+
             'recentGroups' => AnalysisGroupResource::collection(
                 AnalysisGroup::query()
+                    ->where('user_id', $user->id)
                     ->withCount('transactions')
                     ->latest()
                     ->limit(5)

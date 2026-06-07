@@ -5,6 +5,7 @@ import {
     CircleDollarSign,
     FileSpreadsheet,
     LineChart,
+    Package,
     ReceiptText,
     TrendingUp,
 } from 'lucide-react';
@@ -26,6 +27,18 @@ import { dashboard } from '@/routes';
 import type { AnalysisGroup, ResourceCollection, Transaction } from '@/types';
 import { TransactionTypeBadge } from '@/components/trading/transaction-type-badge';
 
+type PortfolioAsset = {
+    asset: string;
+    pair: string;
+    remaining_amount: number;
+    average_buy_price: number;
+    cost_basis: number;
+    estimated_value: number | null;
+    unrealized_pnl: number | null;
+    last_updated: string;
+    last_updated_label: string;
+};
+
 type DashboardProps = {
     stats: {
         total_profit: number;
@@ -40,6 +53,7 @@ type DashboardProps = {
         label: string;
         profit: number;
     }[];
+    portfolioAssets: ResourceCollection<PortfolioAsset>;
     recentTransactions: ResourceCollection<Transaction>;
     recentGroups: ResourceCollection<AnalysisGroup>;
 };
@@ -47,7 +61,7 @@ type DashboardProps = {
 export default function Dashboard({
     stats,
     monthlyProfit,
-    recentTransactions,
+    portfolioAssets,
     recentGroups,
 }: DashboardProps) {
     const maxAbsProfit = Math.max(
@@ -107,11 +121,10 @@ export default function Dashboard({
                         tone="blue"
                     />
                     <ProfitCard
-                        title="Total Sell"
-                        value={formatMoney(stats.total_sell)}
-                        helper="Seluruh hasil transaksi SELL"
-                        icon={ReceiptText}
-                        tone="amber"
+                        title="Jumlah Transaksi"
+                        value={stats.transactions_count.toString()}
+                        helper="Data raw hasil import"
+                        icon={FileSpreadsheet}
                     />
                     <ProfitCard
                         title="Total ROI"
@@ -121,10 +134,11 @@ export default function Dashboard({
                         tone={stats.total_roi >= 0 ? 'green' : 'red'}
                     />
                     <ProfitCard
-                        title="Jumlah Transaksi"
-                        value={stats.transactions_count.toString()}
-                        helper="Data raw hasil import"
-                        icon={FileSpreadsheet}
+                        title="Total Sell"
+                        value={formatMoney(stats.total_sell)}
+                        helper="Seluruh hasil transaksi SELL"
+                        icon={ReceiptText}
+                        tone="amber"
                     />
                     <ProfitCard
                         title="Grup Analisa"
@@ -211,7 +225,7 @@ export default function Dashboard({
                                         <div className="flex items-start justify-between gap-3">
                                             <div className="min-w-0">
                                                 <p className="truncate font-medium">
-                                                    {group.name}
+                                                    ...{group.key.slice(-12)}
                                                 </p>
                                                 <p className="mt-1 text-xs text-muted-foreground">
                                                     {group.transactions_count}{' '}
@@ -247,83 +261,115 @@ export default function Dashboard({
 
                 <Card className="rounded-lg shadow-xs">
                     <CardHeader className="flex-row items-center justify-between">
-                        <CardTitle className="text-base">
-                            Transaksi Terbaru
-                        </CardTitle>
-                        <Button asChild variant="ghost" size="sm">
-                            <Link href="/transactions">
-                                Semua Transaksi
-                                <ArrowRight className="size-4" />
-                            </Link>
-                        </Button>
+                        <div>
+                            <CardTitle className="text-base">
+                                Portfolio Assets Summary
+                            </CardTitle>
+                            <p className="mt-1 text-xs text-muted-foreground">
+                                Ringkasan aset yang masih dimiliki (open
+                                position)
+                            </p>
+                        </div>
                     </CardHeader>
                     <CardContent>
-                        <Table>
-                            <TableHeader>
-                                <TableRow>
-                                    <TableHead>Tanggal</TableHead>
-                                    <TableHead>Pair</TableHead>
-                                    <TableHead>Tipe</TableHead>
-                                    <TableHead className="text-right">
-                                        Jumlah
-                                    </TableHead>
-                                    <TableHead className="text-right">
-                                        Total
-                                    </TableHead>
-                                    <TableHead>Status Analisa</TableHead>
-                                </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                                {recentTransactions.data.length === 0 ? (
-                                    <TableRow>
-                                        <TableCell
-                                            colSpan={6}
-                                            className="h-28 text-center text-muted-foreground"
-                                        >
-                                            Belum ada transaksi.
-                                        </TableCell>
-                                    </TableRow>
-                                ) : (
-                                    recentTransactions.data.map(
-                                        (transaction) => (
-                                            <TableRow key={transaction.id}>
-                                                <TableCell className="text-muted-foreground">
-                                                    {
-                                                        transaction.executed_at_label
-                                                    }
-                                                </TableCell>
-                                                <TableCell className="font-medium">
-                                                    {transaction.pair}
-                                                </TableCell>
+                        {portfolioAssets.data.length === 0 ? (
+                            <div className="rounded-lg border border-dashed p-6 text-center text-sm text-muted-foreground">
+                                <Package className="mx-auto mb-3 size-8 opacity-40" />
+                                Belum ada open position. Lakukan transaksi BUY
+                                untuk memulai.
+                            </div>
+                        ) : (
+                            <div className="overflow-x-auto">
+                                <Table>
+                                    <TableHeader>
+                                        <TableRow>
+                                            <TableHead>Asset</TableHead>
+                                            <TableHead>Pair</TableHead>
+                                            <TableHead className="text-right">
+                                                Remaining Amount
+                                            </TableHead>
+                                            <TableHead className="text-right">
+                                                Avg Buy Price
+                                            </TableHead>
+                                            <TableHead className="text-right">
+                                                Cost Basis
+                                            </TableHead>
+                                            <TableHead className="text-right">
+                                                Est. Value
+                                            </TableHead>
+                                            <TableHead className="text-right">
+                                                Unrealized PNL
+                                            </TableHead>
+                                            <TableHead className="text-right text-xs">
+                                                Last Updated
+                                            </TableHead>
+                                        </TableRow>
+                                    </TableHeader>
+                                    <TableBody>
+                                        {portfolioAssets.data.map((asset) => (
+                                            <TableRow key={asset.pair}>
                                                 <TableCell>
-                                                    <TransactionTypeBadge
-                                                        type={transaction.type}
-                                                    />
-                                                </TableCell>
-                                                <TableCell className="text-right tabular-nums">
-                                                    {formatCrypto(
-                                                        transaction.amount,
-                                                    )}
-                                                </TableCell>
-                                                <TableCell className="text-right tabular-nums">
-                                                    {formatMoney(
-                                                        transaction.total,
-                                                        transaction.quote_asset,
-                                                    )}
-                                                </TableCell>
-                                                <TableCell>
-                                                    <Badge variant="outline">
-                                                        {transaction.is_analyzed
-                                                            ? 'Sudah Dianalisa'
-                                                            : 'Belum Dianalisa'}
+                                                    <Badge
+                                                        variant="outline"
+                                                        className="font-mono"
+                                                    >
+                                                        {asset.asset}
                                                     </Badge>
                                                 </TableCell>
+                                                <TableCell className="font-medium">
+                                                    {asset.pair}
+                                                </TableCell>
+                                                <TableCell className="text-right font-mono">
+                                                    {formatCrypto(
+                                                        asset.remaining_amount,
+                                                        asset.asset,
+                                                    )}
+                                                </TableCell>
+                                                <TableCell className="text-right font-mono">
+                                                    {formatMoney(
+                                                        asset.average_buy_price,
+                                                        asset.pair.split(
+                                                            '/',
+                                                        )[1],
+                                                    )}
+                                                </TableCell>
+                                                <TableCell className="text-right font-mono">
+                                                    {formatMoney(
+                                                        asset.cost_basis,
+                                                        asset.pair.split(
+                                                            '/',
+                                                        )[1],
+                                                    )}
+                                                </TableCell>
+                                                <TableCell className="text-right font-mono text-muted-foreground">
+                                                    {asset.estimated_value
+                                                        ? formatMoney(
+                                                              asset.estimated_value,
+                                                              asset.pair.split(
+                                                                  '/',
+                                                              )[1],
+                                                          )
+                                                        : '-'}
+                                                </TableCell>
+                                                <TableCell className="text-right font-mono text-muted-foreground">
+                                                    {asset.unrealized_pnl
+                                                        ? formatMoney(
+                                                              asset.unrealized_pnl,
+                                                              asset.pair.split(
+                                                                  '/',
+                                                              )[1],
+                                                          )
+                                                        : '-'}
+                                                </TableCell>
+                                                <TableCell className="text-right text-xs text-muted-foreground">
+                                                    {asset.last_updated_label}
+                                                </TableCell>
                                             </TableRow>
-                                        ),
-                                    )
-                                )}
-                            </TableBody>
-                        </Table>
+                                        ))}
+                                    </TableBody>
+                                </Table>
+                            </div>
+                        )}
                     </CardContent>
                 </Card>
             </div>

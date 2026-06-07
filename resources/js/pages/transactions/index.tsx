@@ -280,9 +280,8 @@ export default function TransactionsIndex({ transactions, filters }: Props) {
                                                 <TableCell className="py-0 text-xs text-muted-foreground">
                                                     {formatCrypto(
                                                         transaction.fee_amount,
-                                                    )}{' '}
-                                                    {transaction.fee_coin ??
-                                                        '-'}
+                                                        transaction.fee_coin,
+                                                    )}
                                                 </TableCell>
                                                 <TableCell className="py-0 text-xs">
                                                     <Badge

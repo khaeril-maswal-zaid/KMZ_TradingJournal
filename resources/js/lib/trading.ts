@@ -1,17 +1,17 @@
 import type { AnalysisStatus, TransactionType } from '@/types/trading';
 
-export function formatMoney(value: number, currency: string): string {
+export function formatMoney(value: number, currency: string = 'USDT'): string {
     return `$${new Intl.NumberFormat('id-ID', {
         minimumFractionDigits: 2,
         maximumFractionDigits: 2,
     }).format(value)} ${currency}`;
 }
 
-export function formatCrypto(value: number, baseAsset: string): string {
+export function formatCrypto(value: number, baseAsset: string | null): string {
     return `${new Intl.NumberFormat('id-ID', {
         minimumFractionDigits: 0,
         maximumFractionDigits: 8,
-    }).format(value)} ${baseAsset}`;
+    }).format(value)} ${baseAsset || '-'}`;
 }
 
 export function formatPercent(value: number): string {
