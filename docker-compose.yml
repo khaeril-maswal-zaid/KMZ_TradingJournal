@@ -1,0 +1,39 @@
+version: '3.9'
+
+services:
+  journalcripto_app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+
+    image: kmz_criptojournal:latest
+
+    container_name: kmz_criptojournal
+
+    restart: unless-stopped
+
+    networks:
+      - app-network
+
+    environment:
+      APP_ENV: local
+      APP_DEBUG: true
+      APP_URL: http://layananumum2.local
+      APP_KEY: base64:bQFhlf4lMqXKMZXwGUzrEe0lAs3qYNkW/Zz1Q165378=
+      DB_CONNECTION: mysql
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_DATABASE: KMZ_cripto_journal
+      DB_USERNAME: UserKmzOs
+      DB_PASSWORD: 'App08062026$$_'
+
+    volumes:
+      - public_data:/var/www/public
+
+volumes:
+  public_data:
+    name: tradingjurnal_public
+
+networks:
+  app-network:
+    external: true
