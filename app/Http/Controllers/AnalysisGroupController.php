@@ -24,7 +24,7 @@ class AnalysisGroupController extends Controller
             'groups' => AnalysisGroupResource::collection(
                 AnalysisGroup::query()
                     ->withCount('transactions')
-                    ->latest()
+                    ->latest('executed_at')
                     ->paginate(15)
             ),
 
@@ -41,7 +41,10 @@ class AnalysisGroupController extends Controller
     public function store(StoreAnalysisGroupRequest $request, AnalysisGroupCalculationService $calculator): RedirectResponse
     {
         $group = AnalysisGroup::create(
-            ['user_id' => Auth::id()],
+            [
+                'user_id' => Auth::id()
+            ],
+
             $request->validated(),
         );
 

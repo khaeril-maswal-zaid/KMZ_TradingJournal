@@ -65,8 +65,6 @@ export default function AnalysisGroupsIndex({
         );
     };
 
-    console.log(groups);
-
     const submit = (): void => {
         setProcessing(true);
 

@@ -8,6 +8,10 @@ use Illuminate\Support\Collection;
 
 class AnalysisGroupCalculationService
 {
+    public function __construct(
+        private readonly OpenPositionService $openPositionService,
+    ) {}
+
     public function recalculate(AnalysisGroup $analysisGroup): AnalysisGroup
     {
         $transactions = $analysisGroup->transactions()->get(['transactions.id', 'type', 'total', 'executed_at']);
@@ -25,7 +29,7 @@ class AnalysisGroupCalculationService
         $roiPercent = $totalBuy > 0 ? ($profit / $totalBuy) * 100 : 0;
 
         $analysisGroup->forceFill([
-            'executed_at' => $executedAt,
+            'executed_at' => $executedAt ?? now(),
             'total_buy' => $totalBuy,
             'total_buy_amount' => $totalBuyAmount,
             'average_buy_price' => $averageBuyPrice,
@@ -36,6 +40,8 @@ class AnalysisGroupCalculationService
             'roi_percent' => $roiPercent,
             'status' => $this->statusFor($profit),
         ])->save();
+
+        $this->openPositionService->recalculate($analysisGroup);
 
         return $analysisGroup->refresh();
     }

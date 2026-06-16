@@ -13,6 +13,7 @@ class AnalysisGroup extends Model
 {
     /** @use HasFactory<AnalysisGroupFactory> */
     use HasFactory;
+
     use HasUuid;
 
     protected $fillable = [
@@ -54,5 +55,10 @@ class AnalysisGroup extends Model
     public function assignments(): HasMany
     {
         return $this->hasMany(AnalysisGroupTransaction::class);
+    }
+
+    public function openPositions(): HasMany
+    {
+        return $this->hasMany(OpenPosition::class, 'source_analysis_group_id');
     }
 }

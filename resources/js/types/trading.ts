@@ -1,5 +1,6 @@
 export type TransactionType = 'BUY' | 'SELL';
 export type AnalysisStatus = 'PROFIT' | 'LOSS' | 'BREAK_EVEN';
+export type OpenPositionStatus = 'OPEN' | 'CLOSED';
 
 export type Transaction = {
     id: number;
@@ -38,6 +39,22 @@ export type AnalysisGroup = {
     created_at: string;
     created_at_label: string;
     transactions?: Transaction[];
+};
+
+export type OpenPosition = {
+    id: number;
+    asset: string;
+    buy_price: number;
+    amount: number;
+    total: number;
+    status: OpenPositionStatus;
+    created_at: string;
+    created_at_label: string;
+    analysis_group: {
+        id: number;
+        key: string;
+        name: string;
+    };
 };
 
 export type Paginated<T> = {

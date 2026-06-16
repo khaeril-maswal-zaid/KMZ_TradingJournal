@@ -3,9 +3,7 @@ import {
     BarChart3,
     ChartCandlestick,
     ClipboardList,
-    FileSpreadsheet,
     LayoutDashboard,
-    LineChart,
     ReceiptText,
     Wallet,
 } from 'lucide-react';
@@ -23,6 +21,7 @@ import {
     SidebarMenuItem,
 } from '@/components/ui/sidebar';
 import { dashboard } from '@/routes';
+import { index as openPositionsIndex } from '@/routes/openpositions';
 import { index as transIndex } from '@/routes/transactions';
 import { index as matchingsIndex } from '@/routes/tradematching';
 import type { NavItem } from '@/types';
@@ -37,6 +36,11 @@ const mainNavItems: NavItem[] = [
         title: 'Trade Matching',
         href: matchingsIndex.url(),
         icon: ChartCandlestick,
+    },
+    {
+        title: 'Posisi Terbuka',
+        href: openPositionsIndex.url(),
+        icon: BarChart3,
     },
     {
         title: 'Transaksi',
