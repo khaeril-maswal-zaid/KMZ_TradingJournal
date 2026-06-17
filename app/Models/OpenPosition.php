@@ -4,6 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class OpenPosition extends Model
 {
@@ -15,7 +17,8 @@ class OpenPosition extends Model
         'source_analysis_group_id',
         'asset',
         'buy_price',
-        'amount',
+        'original_amount',
+        'remaining_amount',
         'total',
         'status',
     ];
@@ -24,7 +27,8 @@ class OpenPosition extends Model
     {
         return [
             'buy_price' => 'decimal:10',
-            'amount' => 'decimal:10',
+            'original_amount' => 'decimal:10',
+            'remaining_amount' => 'decimal:10',
             'total' => 'decimal:10',
         ];
     }
@@ -32,5 +36,17 @@ class OpenPosition extends Model
     public function analysisGroup(): BelongsTo
     {
         return $this->belongsTo(AnalysisGroup::class, 'source_analysis_group_id');
+    }
+
+    public function usages(): HasMany
+    {
+        return $this->hasMany(AnalysisGroupOpenPosition::class);
+    }
+
+    public function usedByAnalysisGroups(): BelongsToMany
+    {
+        return $this->belongsToMany(AnalysisGroup::class, 'analysis_group_open_positions')
+            ->withPivot(['allocated_amount', 'allocated_total'])
+            ->withTimestamps();
     }
 }

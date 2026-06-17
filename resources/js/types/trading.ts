@@ -1,6 +1,7 @@
 export type TransactionType = 'BUY' | 'SELL';
 export type AnalysisStatus = 'PROFIT' | 'LOSS' | 'BREAK_EVEN';
 export type OpenPositionStatus = 'OPEN' | 'CLOSED';
+export type SelectableAnalysisItemSource = 'TRANSACTION' | 'OPEN_POSITION';
 
 export type Transaction = {
     id: number;
@@ -45,7 +46,8 @@ export type OpenPosition = {
     id: number;
     asset: string;
     buy_price: number;
-    amount: number;
+    original_amount: number;
+    remaining_amount: number;
     total: number;
     status: OpenPositionStatus;
     created_at: string;
@@ -55,6 +57,13 @@ export type OpenPosition = {
         key: string;
         name: string;
     };
+};
+
+export type SelectableAnalysisItem = Transaction & {
+    selection_id: string;
+    source: SelectableAnalysisItemSource;
+    source_label: string;
+    max_allocatable_amount: number;
 };
 
 export type Paginated<T> = {

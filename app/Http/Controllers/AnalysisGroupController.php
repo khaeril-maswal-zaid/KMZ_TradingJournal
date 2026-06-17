@@ -5,54 +5,60 @@ namespace App\Http\Controllers;
 use App\Http\Requests\AttachAnalysisGroupTransactionsRequest;
 use App\Http\Requests\StoreAnalysisGroupRequest;
 use App\Http\Resources\AnalysisGroupResource;
+use App\Http\Resources\SelectableAnalysisItemResource;
 use App\Http\Resources\TransactionResource;
 use App\Models\AnalysisGroup;
 use App\Models\AnalysisGroupTransaction;
 use App\Models\Transaction;
 use App\Services\AnalysisGroupCalculationService;
+use App\Services\AnalysisGroupSelectableItemService;
+use App\Services\OpenPositionService;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Inertia\Response;
 
 class AnalysisGroupController extends Controller
 {
-    public function index(): Response
+    public function index(AnalysisGroupSelectableItemService $selectableItems): Response
     {
         return Inertia::render('analysis-groups/index', [
             'groups' => AnalysisGroupResource::collection(
                 AnalysisGroup::query()
+                    ->where('user_id', Auth::id())
                     ->withCount('transactions')
                     ->latest('executed_at')
                     ->paginate(15)
             ),
 
-            'availableTransactions' => TransactionResource::collection(
-                Transaction::query()
-                    ->doesntHave('analysisGroupAssignment')
-                    ->latest('executed_at')
-                    // ->limit(20)
-                    ->get()
+            'availableTransactions' => SelectableAnalysisItemResource::collection(
+                $selectableItems->forNewGroup(Auth::id())
             ),
         ]);
     }
 
-    public function store(StoreAnalysisGroupRequest $request, AnalysisGroupCalculationService $calculator): RedirectResponse
+    public function store(StoreAnalysisGroupRequest $request, AnalysisGroupCalculationService $calculator, OpenPositionService $openPositionService): RedirectResponse
     {
-        $group = AnalysisGroup::create(
-            [
-                'user_id' => Auth::id()
-            ],
+        $validated = $request->validated();
+        $group = null;
 
-            $request->validated(),
-        );
+        DB::transaction(function () use (&$group, $calculator, $openPositionService, $validated): void {
+            $group = AnalysisGroup::create([
+                'user_id' => Auth::id(),
+            ]);
 
-        if ($request->filled('transaction_ids')) {
-            $this->attachTransactions($group, $request->validated('transaction_ids'));
-        }
+            if (! empty($validated['transaction_ids'])) {
+                $this->attachTransactions($group, $validated['transaction_ids']);
+            }
 
-        $calculator->recalculate($group);
+            if (! empty($validated['open_position_allocations'])) {
+                $openPositionService->allocateToGroup($group, $validated['open_position_allocations']);
+            }
+
+            $calculator->recalculate($group);
+        });
 
         Inertia::flash('toast', ['type' => 'success', 'message' => 'Grup analisa berhasil dibuat.']);
 
@@ -60,10 +66,11 @@ class AnalysisGroupController extends Controller
         // return to_route('tradematching.show', $group);
     }
 
-    public function show(AnalysisGroup $analysisGroup, AnalysisGroupCalculationService $calculator): Response
+    public function show(AnalysisGroup $analysisGroup, AnalysisGroupCalculationService $calculator, AnalysisGroupSelectableItemService $selectableItems): Response
     {
         $analysisGroup->load([
             'transactions' => fn($query) => $query->orderBy('executed_at'),
+            'openPositionAllocations.openPosition',
         ])->loadCount('transactions');
 
         $buyTransactions = $analysisGroup->transactions->where('type', 'BUY')->values();
@@ -73,30 +80,36 @@ class AnalysisGroupController extends Controller
             'group' => AnalysisGroupResource::make($analysisGroup),
             'buyTransactions' => TransactionResource::collection($buyTransactions),
             'sellTransactions' => TransactionResource::collection($sellTransactions),
-            'sellPlannerSummary' => $calculator->sellPlannerSummary($buyTransactions),
-            'availableTransactions' => TransactionResource::collection(
-                Transaction::query()
-                    ->with('analysisGroupAssignment.analysisGroup')
-                    ->latest('executed_at')
-                    // ->limit(80)
-                    ->get()
+            'sellPlannerSummary' => $calculator->sellPlannerSummary($buyTransactions, $analysisGroup->openPositionAllocations),
+            'availableTransactions' => SelectableAnalysisItemResource::collection(
+                $selectableItems->forExistingGroup($analysisGroup)
             ),
         ]);
     }
 
-    public function attach(AnalysisGroup $analysisGroup, AttachAnalysisGroupTransactionsRequest $request, AnalysisGroupCalculationService $calculator): RedirectResponse
+    public function attach(AnalysisGroup $analysisGroup, AttachAnalysisGroupTransactionsRequest $request, AnalysisGroupCalculationService $calculator, OpenPositionService $openPositionService): RedirectResponse
     {
+        $validated = $request->validated();
+
         try {
-            $this->attachTransactions($analysisGroup, $request->validated('transaction_ids'));
+            DB::transaction(function () use ($analysisGroup, $calculator, $openPositionService, $validated): void {
+                if (! empty($validated['transaction_ids'])) {
+                    $this->attachTransactions($analysisGroup, $validated['transaction_ids']);
+                }
+
+                if (! empty($validated['open_position_allocations'])) {
+                    $openPositionService->allocateToGroup($analysisGroup, $validated['open_position_allocations']);
+                }
+
+                $calculator->recalculate($analysisGroup);
+            });
         } catch (QueryException) {
             Inertia::flash('toast', ['type' => 'error', 'message' => 'Transaksi sudah masuk ke grup analisa lain.']);
 
             return back();
         }
 
-        $calculator->recalculate($analysisGroup);
-
-        Inertia::flash('toast', ['type' => 'success', 'message' => 'Transaksi berhasil dimasukkan ke grup analisa.']);
+        Inertia::flash('toast', ['type' => 'success', 'message' => 'Item berhasil dimasukkan ke grup analisa.']);
 
         return back();
     }
@@ -111,8 +124,10 @@ class AnalysisGroupController extends Controller
         return back();
     }
 
-    public function destroy(AnalysisGroup $analysisGroup): RedirectResponse
+    public function destroy(AnalysisGroup $analysisGroup, OpenPositionService $openPositionService): RedirectResponse
     {
+        $openPositionService->releaseAllocations($analysisGroup);
+
         // detach all transactions first to avoid foreign key issues
         $analysisGroup->transactions()->detach();
 

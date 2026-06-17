@@ -105,7 +105,7 @@ export default function AnalysisGroupsIndex({
                                 Buat Matching
                             </Button>
                         </DialogTrigger>
-                        <DialogContent className="sm:max-w-3xl">
+                        <DialogContent className="sm:max-w-4xl">
                             <DialogHeader>
                                 <DialogTitle>
                                     Buat Grup Trade Matching
@@ -132,7 +132,7 @@ export default function AnalysisGroupsIndex({
                                         </TableRow>
                                     </TableHeader>
                                     <TableBody>
-                                        {availableTransactions.data.length ===
+                                        {availableTransactions?.data?.length ===
                                         0 ? (
                                             <TableRow>
                                                 <TableCell
@@ -144,10 +144,13 @@ export default function AnalysisGroupsIndex({
                                                 </TableCell>
                                             </TableRow>
                                         ) : (
-                                            availableTransactions.data.map(
-                                                (transaction) => (
+                                            availableTransactions?.data?.map(
+                                                (transaction, key) => (
                                                     <TableRow
-                                                        key={transaction.id}
+                                                        key={
+                                                            key ||
+                                                            transaction.id
+                                                        }
                                                         data-state={
                                                             selectedIds.includes(
                                                                 transaction.id,

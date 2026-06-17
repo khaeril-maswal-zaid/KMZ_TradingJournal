@@ -61,4 +61,16 @@ class AnalysisGroup extends Model
     {
         return $this->hasMany(OpenPosition::class, 'source_analysis_group_id');
     }
+
+    public function openPositionAllocations(): HasMany
+    {
+        return $this->hasMany(AnalysisGroupOpenPosition::class);
+    }
+
+    public function allocatedOpenPositions(): BelongsToMany
+    {
+        return $this->belongsToMany(OpenPosition::class, 'analysis_group_open_positions')
+            ->withPivot(['allocated_amount', 'allocated_total'])
+            ->withTimestamps();
+    }
 }

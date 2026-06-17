@@ -14,18 +14,22 @@ class AttachAnalysisGroupTransactionsRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'transaction_ids' => ['required', 'array', 'min:1'],
+            'transaction_ids' => ['nullable', 'array'],
             'transaction_ids.*' => ['integer', 'exists:transactions,id'],
+            'open_position_allocations' => ['nullable', 'array'],
+            'open_position_allocations.*.open_position_id' => ['required', 'integer', 'exists:open_positions,id'],
+            'open_position_allocations.*.allocated_amount' => ['required', 'numeric', 'gt:0'],
         ];
     }
 
     public function messages(): array
     {
         return [
-            'transaction_ids.required' => 'Pilih minimal satu transaksi.',
             'transaction_ids.array' => 'Daftar transaksi tidak valid.',
-            'transaction_ids.min' => 'Pilih minimal satu transaksi.',
             'transaction_ids.*.exists' => 'Transaksi yang dipilih tidak ditemukan.',
+            'open_position_allocations.array' => 'Daftar posisi terbuka tidak valid.',
+            'open_position_allocations.*.open_position_id.exists' => 'Posisi terbuka yang dipilih tidak ditemukan.',
+            'open_position_allocations.*.allocated_amount.gt' => 'Jumlah posisi terbuka harus lebih dari 0.',
         ];
     }
 }

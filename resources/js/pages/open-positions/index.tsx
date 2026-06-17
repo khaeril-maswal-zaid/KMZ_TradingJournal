@@ -239,7 +239,10 @@ export default function OpenPositionsIndex({
                                             Harga Modal
                                         </TableHead>
                                         <TableHead className="text-right">
-                                            Jumlah Tersisa
+                                            Original Amount
+                                        </TableHead>
+                                        <TableHead className="text-right">
+                                            Remaining Amount
                                         </TableHead>
                                         <TableHead className="text-right">
                                             Total Modal
@@ -255,7 +258,7 @@ export default function OpenPositionsIndex({
                                     {positions.data.length === 0 ? (
                                         <TableRow>
                                             <TableCell
-                                                colSpan={8}
+                                                colSpan={9}
                                                 className="h-36 text-center text-muted-foreground"
                                             >
                                                 Belum ada posisi sesuai filter.
@@ -295,7 +298,13 @@ export default function OpenPositionsIndex({
                                                 </TableCell>
                                                 <TableCell className="text-right text-xs tabular-nums">
                                                     {formatCrypto(
-                                                        position.amount,
+                                                        position.original_amount,
+                                                        position.asset,
+                                                    )}
+                                                </TableCell>
+                                                <TableCell className="text-right text-xs tabular-nums">
+                                                    {formatCrypto(
+                                                        position.remaining_amount,
                                                         position.asset,
                                                     )}
                                                 </TableCell>

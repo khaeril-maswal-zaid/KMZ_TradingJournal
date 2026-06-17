@@ -16,7 +16,8 @@ return new class extends Migration
             $table->foreignId('source_analysis_group_id')->constrained('analysis_groups')->cascadeOnDelete();
             $table->string('asset');
             $table->decimal('buy_price', 24, 10)->default(0);
-            $table->decimal('amount', 24, 10)->default(0);
+            $table->decimal('original_amount', 24, 10)->default(0);
+            $table->decimal('remaining_amount', 24, 10)->default(0);
             $table->decimal('total', 24, 10)->default(0);
             $table->enum('status', ['OPEN', 'CLOSED'])->default('OPEN');
             $table->timestamps();

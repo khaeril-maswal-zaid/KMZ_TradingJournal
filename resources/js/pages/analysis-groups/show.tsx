@@ -91,10 +91,10 @@ export default function AnalysisGroupShow({
 
     const selectedTotal = useMemo(
         () =>
-            availableTransactions.data
+            availableTransactions?.data
                 .filter((transaction) => selectedIds.includes(transaction.id))
                 .reduce((total, transaction) => total + transaction.total, 0),
-        [availableTransactions.data, selectedIds],
+        [availableTransactions?.data, selectedIds],
     );
 
     const toggle = (transaction: Transaction): void => {
@@ -484,7 +484,7 @@ export default function AnalysisGroupShow({
                                             </TableRow>
                                         </TableHeader>
                                         <TableBody>
-                                            {availableTransactions.data.map(
+                                            {availableTransactions?.data?.map(
                                                 (transaction) => (
                                                     <TableRow
                                                         key={transaction.id}
