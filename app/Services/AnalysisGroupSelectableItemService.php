@@ -47,18 +47,18 @@ class AnalysisGroupSelectableItemService
             ->with('analysisGroup')
             ->where('status', OpenPosition::STATUS_OPEN)
             ->where('remaining_amount', '>', 0)
-            ->whereHas('analysisGroup', fn ($query) => $query->where('user_id', $userId))
+            ->whereHas('analysisGroup', fn($query) => $query->where('user_id', $userId))
             ->when($analysisGroup, function ($query) use ($analysisGroup): void {
                 $query
                     ->where('source_analysis_group_id', '!=', $analysisGroup->id)
-                    ->whereDoesntHave('usages', fn ($query) => $query->where('analysis_group_id', $analysisGroup->id));
+                    ->whereDoesntHave('usages', fn($query) => $query->where('analysis_group_id', $analysisGroup->id));
             })
             ->latest()
             ->get();
 
         return $transactions
             ->concat($openPositions)
-            ->sortByDesc(fn (Transaction|OpenPosition $item) => $item instanceof Transaction ? $item->executed_at : $item->created_at)
+            ->sortByDesc(fn(Transaction|OpenPosition $item) => $item instanceof Transaction ? $item->executed_at : $item->created_at)
             ->values();
     }
 }

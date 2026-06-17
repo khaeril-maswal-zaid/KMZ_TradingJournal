@@ -19,12 +19,12 @@ class AnalysisGroupCalculationService
         $allocations = $analysisGroup->openPositionAllocations()->get(['allocated_amount', 'allocated_total']);
         $executedAt = $transactions->where('type', 'SELL')->max('executed_at');
         $totalBuy = (float) $transactions->where('type', 'BUY')->sum(fn(Transaction $transaction) => (float) $transaction->total);
-        $totalBuy += (float) $allocations->sum(fn (AnalysisGroupOpenPosition $allocation) => (float) $allocation->allocated_total);
+        $totalBuy += (float) $allocations->sum(fn(AnalysisGroupOpenPosition $allocation) => (float) $allocation->allocated_total);
         $totalSell = (float) $transactions->where('type', 'SELL')->sum(fn(Transaction $transaction) => (float) $transaction->total);
 
         // also calculate amounts and average prices
         $totalBuyAmount = (float) $analysisGroup->transactions()->where('type', 'BUY')->sum('amount');
-        $totalBuyAmount += (float) $allocations->sum(fn (AnalysisGroupOpenPosition $allocation) => (float) $allocation->allocated_amount);
+        $totalBuyAmount += (float) $allocations->sum(fn(AnalysisGroupOpenPosition $allocation) => (float) $allocation->allocated_amount);
         $totalSellAmount = (float) $analysisGroup->transactions()->where('type', 'SELL')->sum('amount');
 
         $averageBuyPrice = $totalBuyAmount > 0 ? $totalBuy / $totalBuyAmount : 0;
@@ -59,8 +59,8 @@ class AnalysisGroupCalculationService
         $totalAmount = (float) $buyTransactions->sum(fn(Transaction $transaction) => (float) $transaction->amount);
         $totalCost = (float) $buyTransactions->sum(fn(Transaction $transaction) => (float) $transaction->total);
         $openPositionAllocations ??= collect();
-        $totalAmount += (float) $openPositionAllocations->sum(fn (AnalysisGroupOpenPosition $allocation) => (float) $allocation->allocated_amount);
-        $totalCost += (float) $openPositionAllocations->sum(fn (AnalysisGroupOpenPosition $allocation) => (float) $allocation->allocated_total);
+        $totalAmount += (float) $openPositionAllocations->sum(fn(AnalysisGroupOpenPosition $allocation) => (float) $allocation->allocated_amount);
+        $totalCost += (float) $openPositionAllocations->sum(fn(AnalysisGroupOpenPosition $allocation) => (float) $allocation->allocated_total);
 
         $average = $totalAmount > 0 ? $totalCost / $totalAmount : 0.0;
 

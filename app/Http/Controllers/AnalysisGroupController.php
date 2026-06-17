@@ -53,9 +53,9 @@ class AnalysisGroupController extends Controller
                 $this->attachTransactions($group, $validated['transaction_ids']);
             }
 
-            if (! empty($validated['open_position_allocations'])) {
-                $openPositionService->allocateToGroup($group, $validated['open_position_allocations']);
-            }
+            // if (! empty($validated['open_position_allocations'])) {
+            //     $openPositionService->allocateToGroup($group, $validated['open_position_allocations']);
+            // }
 
             $calculator->recalculate($group);
         });
