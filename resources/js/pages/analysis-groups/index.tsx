@@ -41,6 +41,7 @@ import {
     AlertDialogHeader,
     AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
+import { toast } from 'sonner';
 
 type Props = {
     groups: Paginated<AnalysisGroup>;
@@ -79,10 +80,15 @@ export default function AnalysisGroupsIndex({
                     setOpen(false);
                     setSelectedIds([]);
                 },
+                onError: (errors) => {
+                    toast.error(Object.values(errors)[0] as string);
+                },
                 onFinish: () => setProcessing(false),
             },
         );
     };
+
+    console.log(availableTransactions);
 
     return (
         <>
@@ -148,8 +154,7 @@ export default function AnalysisGroupsIndex({
                                                 (transaction, key) => (
                                                     <TableRow
                                                         key={
-                                                            key ||
-                                                            transaction.id
+                                                            transaction.selection_id
                                                         }
                                                         data-state={
                                                             selectedIds.includes(

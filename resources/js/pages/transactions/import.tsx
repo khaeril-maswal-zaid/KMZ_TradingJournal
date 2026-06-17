@@ -10,6 +10,7 @@ import { useTransactionImportTable } from '@/hooks/use-transaction-import-table'
 import { BreadcrumbItem } from '@/types';
 import { importstore } from '@/routes/transactions';
 import { index } from '@/routes/transactions';
+import { Button } from '@/components/ui/button';
 
 export default function TransactionsImport() {
     const {
@@ -61,7 +62,9 @@ export default function TransactionsImport() {
             {
                 preserveScroll: true,
                 onStart: () => setProcessing(true),
-                onError: (er) => toast.error('Data transaksi tidak valid.'),
+                onError: (errors) => {
+                    toast.error(Object.values(errors)[0] as string);
+                },
                 onSuccess: () => {
                     clearRows();
                     clearRowsV2();
@@ -100,26 +103,26 @@ export default function TransactionsImport() {
                         </div>
                     </div>
                     <div className="flex gap-2">
-                        <button
+                        <Button
                             onClick={() => switchVersion('v1')}
-                            className={`rounded-lg border px-4 py-2 text-sm font-medium transition-colors ${
+                            className={`rounded-lg border px-4 py-2 text-sm font-medium text-gray-600 transition-colors ${
                                 version === 'v1'
                                     ? 'border-primary bg-primary text-primary-foreground'
                                     : 'border-input bg-background hover:bg-accent'
                             }`}
                         >
                             Format V1
-                        </button>
-                        <button
+                        </Button>
+                        <Button
                             onClick={() => switchVersion('v2')}
-                            className={`rounded-lg border px-4 py-2 text-sm font-medium transition-colors ${
+                            className={`rounded-lg border px-4 py-2 text-sm font-medium text-gray-600 transition-colors ${
                                 version === 'v2'
                                     ? 'border-primary bg-primary text-primary-foreground'
                                     : 'border-input bg-background hover:bg-accent'
                             }`}
                         >
                             Format V2
-                        </button>
+                        </Button>
                     </div>
                 </div>
 

@@ -76,7 +76,7 @@ export default function AnalysisGroupShow({
     group,
     buyTransactions,
     sellTransactions,
-    sellBreakdown,
+    sellBreakdown, //cek di be untuk apa
     availableTransactions,
     sellPlannerSummary,
 }: Props) {
@@ -88,6 +88,8 @@ export default function AnalysisGroupShow({
     const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
     const [transactionToDelete, setTransactionToDelete] =
         useState<Transaction | null>(null);
+
+    console.log(availableTransactions);
 
     const selectedTotal = useMemo(
         () =>

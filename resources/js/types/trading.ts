@@ -6,6 +6,7 @@ export type SelectableAnalysisItemSource = 'TRANSACTION' | 'OPEN_POSITION';
 export type Transaction = {
     id: number;
     pair: string;
+    selection_id: string;
     base_asset: string;
     quote_asset: string;
     type: TransactionType;

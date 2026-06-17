@@ -168,65 +168,43 @@ export default function OpenPositionsIndex({
                 <Card className="rounded-lg shadow-xs">
                     <CardContent className="space-y-4 p-4">
                         <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-                            <div className="flex flex-wrap gap-2">
-                                {statusTabs.map((tab) => (
-                                    <Button
-                                        key={tab.value}
-                                        variant={
-                                            filters.status === tab.value
-                                                ? 'default'
-                                                : 'outline'
-                                        }
-                                        size="sm"
-                                        onClick={() =>
-                                            visit({ status: tab.value })
-                                        }
-                                    >
-                                        {tab.label}
-                                    </Button>
-                                ))}
-                            </div>
-                            <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
-                                <div className="relative">
-                                    <Search className="pointer-events-none absolute top-2.5 left-3 size-4 text-muted-foreground" />
-                                    <Input
-                                        value={search}
-                                        onChange={(event) =>
-                                            setSearch(event.target.value)
-                                        }
-                                        onKeyDown={(event) => {
-                                            if (event.key === 'Enter') {
-                                                visit({ search });
-                                            }
-                                        }}
-                                        placeholder="Cari aset atau grup"
-                                        className="w-full pl-9 sm:w-72"
-                                    />
-                                </div>
-                                <Select
-                                    value={filters.status}
-                                    onValueChange={(value) =>
-                                        visit({
-                                            status: value as Filters['status'],
-                                        })
+                            <div className="relative">
+                                <Search className="pointer-events-none absolute top-2.5 left-3 size-4 text-muted-foreground" />
+                                <Input
+                                    value={search}
+                                    onChange={(event) =>
+                                        setSearch(event.target.value)
                                     }
-                                >
-                                    <SelectTrigger className="w-full sm:w-44">
-                                        <SelectValue placeholder="Status" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="all">
-                                            Semua
-                                        </SelectItem>
-                                        <SelectItem value="OPEN">
-                                            Terbuka
-                                        </SelectItem>
-                                        <SelectItem value="CLOSED">
-                                            Tertutup
-                                        </SelectItem>
-                                    </SelectContent>
-                                </Select>
+                                    onKeyDown={(event) => {
+                                        if (event.key === 'Enter') {
+                                            visit({ search });
+                                        }
+                                    }}
+                                    placeholder="Cari aset atau grup"
+                                    className="w-full pl-9 sm:w-96"
+                                />
                             </div>
+                            <Select
+                                value={filters.status}
+                                onValueChange={(value) =>
+                                    visit({
+                                        status: value as Filters['status'],
+                                    })
+                                }
+                            >
+                                <SelectTrigger className="w-full sm:w-44">
+                                    <SelectValue placeholder="Status" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="all">Semua</SelectItem>
+                                    <SelectItem value="OPEN">
+                                        Terbuka
+                                    </SelectItem>
+                                    <SelectItem value="CLOSED">
+                                        Tertutup
+                                    </SelectItem>
+                                </SelectContent>
+                            </Select>
                         </div>
 
                         <TooltipProvider>
@@ -320,9 +298,7 @@ export default function OpenPositionsIndex({
                                                     )}
                                                 </TableCell>
                                                 <TableCell className="text-xs text-muted-foreground">
-                                                    {
-                                                        position.created_at_label
-                                                    }
+                                                    {position.created_at_label}
                                                 </TableCell>
                                                 <TableCell className="text-right">
                                                     <DropdownMenu>

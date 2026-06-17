@@ -118,7 +118,7 @@ export function EditableTransactionTable(props: Props) {
                 </div>
             )}
             <div className="max-h-[62vh] overflow-auto">
-                <Table className="min-w-[1180px]">
+                <Table className="min-w-295">
                     <TableHeader className="sticky top-0 z-10 bg-muted/95 backdrop-blur">
                         <TableRow className="hover:bg-muted/95">
                             <TableHead className="w-12 text-center">
