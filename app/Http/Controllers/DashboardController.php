@@ -23,7 +23,8 @@ class DashboardController extends Controller
 
         $monthlyProfit = AnalysisGroup::query()
             ->where('user_id', $user->id)
-            ->selectRaw("strftime('%Y-%m', executed_at) as month, sum(profit) as profit")
+            // ->selectRaw("strftime('%Y-%m', executed_at) as month, sum(profit) as profit")
+            ->selectRaw("DATE_FORMAT(executed_at, '%Y-%m') as month, SUM(profit) as profit")
             ->groupBy('month')
             ->orderBy('month')
             ->get()

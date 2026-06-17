@@ -18,7 +18,7 @@ services:
     environment:
       APP_ENV: local
       APP_DEBUG: true
-      APP_URL: http://layananumum2.local
+      APP_URL: http://10.1.53.220:8005
       APP_KEY: base64:bQFhlf4lMqXKMZXwGUzrEe0lAs3qYNkW/Zz1Q165378=
       DB_CONNECTION: mysql
       DB_HOST: mysql

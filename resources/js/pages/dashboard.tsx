@@ -215,7 +215,7 @@ export default function Dashboard({
                         </div>
                     </CardHeader>
                     <CardContent>
-                        {portfolioAssets.data.length === 0 ? (
+                        {portfolioAssets.data?.length === 0 ? (
                             <div className="rounded-lg border border-dashed p-6 text-center text-sm text-muted-foreground">
                                 <Package className="mx-auto mb-3 size-8 opacity-40" />
                                 Belum ada open position. Lakukan transaksi BUY
@@ -249,7 +249,7 @@ export default function Dashboard({
                                         </TableRow>
                                     </TableHeader>
                                     <TableBody>
-                                        {portfolioAssets.data.map((asset) => (
+                                        {portfolioAssets.data?.map((asset) => (
                                             <TableRow key={asset.pair}>
                                                 <TableCell>
                                                     <Badge
