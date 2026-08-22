@@ -53,9 +53,9 @@ class AnalysisGroupController extends Controller
                 $this->attachTransactions($group, $validated['transaction_ids']);
             }
 
-            // if (! empty($validated['open_position_allocations'])) {
-            //     $openPositionService->allocateToGroup($group, $validated['open_position_allocations']);
-            // }
+            if (! empty($validated['open_position_allocations'])) {
+                $openPositionService->allocateToGroup($group, $validated['open_position_allocations']);
+            }
 
             $calculator->recalculate($group);
         });
@@ -131,7 +131,7 @@ class AnalysisGroupController extends Controller
         // detach all transactions first to avoid foreign key issues
         $analysisGroup->transactions()->detach();
 
-        AnalysisGroup::destroy($analysisGroup->id);
+        $analysisGroup->delete();
 
         Inertia::flash('toast', ['type' => 'success', 'message' => 'Grup analisa berhasil dihapus.']);
 
@@ -141,9 +141,13 @@ class AnalysisGroupController extends Controller
     /**
      * @param  array<int, int>  $transactionIds
      */
-    private function attachTransactions(AnalysisGroup $analysisGroup, array $transactionIds): void
+    private function attachTransactions(AnalysisGroup $analysisGroup, array $transactionUuids): void
     {
-        foreach (array_unique($transactionIds) as $transactionId) {
+        $transactions = Transaction::query()
+            ->whereIn('uuid', array_unique($transactionUuids))
+            ->pluck('id');
+
+        foreach ($transactions as $transactionId) {
             AnalysisGroupTransaction::create([
                 'analysis_group_id' => $analysisGroup->id,
                 'transaction_id' => $transactionId,

@@ -16,15 +16,12 @@ class AnalysisGroupCalculationService
     public function recalculate(AnalysisGroup $analysisGroup): AnalysisGroup
     {
         $transactions = $analysisGroup->transactions()->get(['transactions.id', 'type', 'total', 'executed_at']);
-        $allocations = $analysisGroup->openPositionAllocations()->get(['allocated_amount', 'allocated_total']);
         $executedAt = $transactions->where('type', 'SELL')->max('executed_at');
         $totalBuy = (float) $transactions->where('type', 'BUY')->sum(fn(Transaction $transaction) => (float) $transaction->total);
-        $totalBuy += (float) $allocations->sum(fn(AnalysisGroupOpenPosition $allocation) => (float) $allocation->allocated_total);
         $totalSell = (float) $transactions->where('type', 'SELL')->sum(fn(Transaction $transaction) => (float) $transaction->total);
 
         // also calculate amounts and average prices
         $totalBuyAmount = (float) $analysisGroup->transactions()->where('type', 'BUY')->sum('amount');
-        $totalBuyAmount += (float) $allocations->sum(fn(AnalysisGroupOpenPosition $allocation) => (float) $allocation->allocated_amount);
         $totalSellAmount = (float) $analysisGroup->transactions()->where('type', 'SELL')->sum('amount');
 
         $averageBuyPrice = $totalBuyAmount > 0 ? $totalBuy / $totalBuyAmount : 0;

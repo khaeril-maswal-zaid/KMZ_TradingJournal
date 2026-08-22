@@ -16,32 +16,34 @@ class SelectableAnalysisItemResource extends JsonResource
         if ($this->resource instanceof OpenPosition) {
             return [
                 'id' => $this->id,
-                'selection_id' => 'open_position:'.$this->id,
+                'uuid' => $this->uuid,
+                'selection_id' => 'open_position:' . $this->id,
                 'source' => 'OPEN_POSITION',
                 'source_label' => 'POSISI TERBUKA',
-                'pair' => $this->asset.'/USDT',
+                'pair' => $this->asset . '/USDT',
                 'base_asset' => $this->asset,
                 'quote_asset' => 'USDT',
                 'type' => 'BUY',
                 'price' => (float) $this->buy_price,
-                'amount' => (float) $this->remaining_amount,
-                'max_allocatable_amount' => (float) $this->remaining_amount,
+                'amount' => (float) $this->amount,
+                'max_allocatable_amount' => (float) $this->amount,
                 'total' => (float) $this->total,
                 'fee_amount' => 0,
                 'fee_coin' => null,
                 'executed_at' => $this->created_at?->toIso8601String(),
-                'executed_at_label' => $this->created_at?->timezone('UTC')->format('d M Y H:i').' UTC',
+                'executed_at_label' => $this->created_at?->timezone('UTC')->format('d M Y H:i') . ' UTC',
                 'notes' => null,
                 'is_analyzed' => false,
-                'analysis_group' => $this->whenLoaded('analysisGroup', fn () => [
-                    'key' => $this->analysisGroup->key_analysis_group,
+                'analysis_group' => $this->whenLoaded('analysisGroup', fn() => [
+                    'key' => $this->analysisGroup->uuid,
                 ]),
             ];
         }
 
         return [
             'id' => $this->id,
-            'selection_id' => 'transaction:'.$this->id,
+            'uuid' => $this->uuid,
+            'selection_id' => 'transaction:' . $this->id,
             'source' => 'TRANSACTION',
             'source_label' => $this->type,
             'pair' => $this->pair,
@@ -55,11 +57,11 @@ class SelectableAnalysisItemResource extends JsonResource
             'fee_amount' => (float) $this->fee_amount,
             'fee_coin' => $this->fee_coin,
             'executed_at' => $this->executed_at?->toIso8601String(),
-            'executed_at_label' => $this->executed_at?->timezone('UTC')->format('d M Y H:i').' UTC',
+            'executed_at_label' => $this->executed_at?->timezone('UTC')->format('d M Y H:i') . ' UTC',
             'notes' => $this->notes,
             'is_analyzed' => (bool) $this->analysisGroupAssignment?->analysis_group_id,
-            'analysis_group' => $this->whenLoaded('analysisGroupAssignment', fn () => $this->analysisGroupAssignment?->analysisGroup ? [
-                'key' => $this->analysisGroupAssignment->analysisGroup->key_analysis_group,
+            'analysis_group' => $this->whenLoaded('analysisGroupAssignment', fn() => $this->analysisGroupAssignment?->analysisGroup ? [
+                'key' => $this->analysisGroupAssignment->analysisGroup->uuid,
             ] : null),
         ];
     }

@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('analysis_groups', function (Blueprint $table) {
             $table->id();
             $table->dateTime('executed_at')->nullable();
-            $table->uuid('key_analysis_group')->unique();
+            $table->uuid('uuid')->unique();
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
             $table->decimal('total_buy', 24, 10)->default(0);
             $table->decimal('total_sell', 24, 10)->default(0);

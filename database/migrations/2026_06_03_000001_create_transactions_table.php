@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('transactions', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
+            $table->uuid('uuid')->unique();
             $table->string('pair');
             $table->string('base_asset');
             $table->string('quote_asset');

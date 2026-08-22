@@ -166,6 +166,15 @@ export default function AnalysisGroupShow({
 
     const [targetRoi, setTargetRoi] = useState<number>(0);
 
+    // Use string-backed inputs so typing isn't disrupted by formatting.
+    const [totalAmountStr, setTotalAmountStr] = useState<string>(
+        (total_buy_amount ?? 0).toString(),
+    );
+
+    const [targetSellPriceStr, setTargetSellPriceStr] = useState<string>(
+        (average_buy_price ?? 0).toString(),
+    );
+
     const computed = useMemo(() => {
         if (mode === 'price') {
             const estimatedSellValue = totalAmountInput * targetSellPrice;
@@ -246,32 +255,38 @@ export default function AnalysisGroupShow({
                                     <div className="space-y-4">
                                         <div className="grid gap-3 md:grid-cols-3">
                                             <div className="rounded-lg border bg-card p-4">
-                                                <p className="text-sm text-muted-foreground">
+                                                <Label className="text-sm text-muted-foreground">
                                                     Total Amount
-                                                </p>
+                                                </Label>
                                                 <div className="mt-1 flex items-center gap-2">
                                                     <Input
-                                                        type="number"
+                                                        type="text"
+                                                        inputMode="decimal"
                                                         className="w-full rounded-md border p-2 text-right tabular-nums"
-                                                        value={totalAmountInput.toFixed(
-                                                            6,
-                                                        )}
-                                                        onChange={(e) =>
+                                                        value={totalAmountStr}
+                                                        onChange={(e) => {
+                                                            const v =
+                                                                e.target.value.replace(
+                                                                    ',',
+                                                                    '.',
+                                                                );
+                                                            setTotalAmountStr(
+                                                                v,
+                                                            );
+                                                            const n = Number(v);
                                                             setTotalAmountInput(
-                                                                Number(
-                                                                    e.target
-                                                                        .value,
-                                                                ),
-                                                            )
-                                                        }
-                                                        step="0.00000001"
+                                                                Number.isNaN(n)
+                                                                    ? 0
+                                                                    : n,
+                                                            );
+                                                        }}
                                                     />
                                                 </div>
                                             </div>
                                             <div className="rounded-lg border bg-card p-4">
-                                                <p className="text-sm text-muted-foreground">
+                                                <Label className="text-sm text-muted-foreground">
                                                     Average Buy Price
-                                                </p>
+                                                </Label>
                                                 <p className="mt-1 font-medium tabular-nums">
                                                     {formatMoney(
                                                         average_buy_price,
@@ -280,9 +295,9 @@ export default function AnalysisGroupShow({
                                                 </p>
                                             </div>
                                             <div className="rounded-lg border bg-card p-4">
-                                                <p className="text-sm text-muted-foreground">
+                                                <Label className="text-sm text-muted-foreground">
                                                     Total Modal
-                                                </p>
+                                                </Label>
                                                 <p className="mt-1 font-medium tabular-nums">
                                                     {formatMoney(
                                                         total_buy_cost,
@@ -323,20 +338,31 @@ export default function AnalysisGroupShow({
                                                     </Label>
                                                     <div className="mt-1 flex items-center gap-2">
                                                         <Input
-                                                            type=""
+                                                            type="text"
+                                                            inputMode="decimal"
                                                             className="w-full rounded-md border p-2 text-right tabular-nums"
-                                                            value={targetSellPrice.toFixed(
-                                                                2,
-                                                            )}
-                                                            onChange={(e) =>
-                                                                setTargetSellPrice(
-                                                                    Number(
-                                                                        e.target
-                                                                            .value,
-                                                                    ),
-                                                                )
+                                                            value={
+                                                                targetSellPriceStr
                                                             }
-                                                            step="0.00000001"
+                                                            onChange={(e) => {
+                                                                const v =
+                                                                    e.target.value.replace(
+                                                                        ',',
+                                                                        '.',
+                                                                    );
+                                                                setTargetSellPriceStr(
+                                                                    v,
+                                                                );
+                                                                const n =
+                                                                    Number(v);
+                                                                setTargetSellPrice(
+                                                                    Number.isNaN(
+                                                                        n,
+                                                                    )
+                                                                        ? 0
+                                                                        : n,
+                                                                );
+                                                            }}
                                                         />
                                                     </div>
                                                 </div>

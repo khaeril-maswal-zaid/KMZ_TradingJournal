@@ -13,13 +13,11 @@ class AnalysisGroup extends Model
 {
     /** @use HasFactory<AnalysisGroupFactory> */
     use HasFactory;
-
     use HasUuid;
 
     protected $fillable = [
         'executed_at',
         'user_id',
-        'key_analysis_group',
         'total_buy',
         'total_buy_amount',
         'average_buy_price',

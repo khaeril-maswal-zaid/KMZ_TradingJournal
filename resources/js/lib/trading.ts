@@ -9,7 +9,7 @@ export function formatMoney(value: number, currency: string = 'USDT'): string {
 
 export function formatCrypto(value: number, baseAsset: string | null): string {
     return `${new Intl.NumberFormat('id-ID', {
-        minimumFractionDigits: 0,
+        minimumFractionDigits: 5,
         maximumFractionDigits: 8,
     }).format(value)} ${baseAsset}`;
 }

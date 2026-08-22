@@ -16,16 +16,15 @@ class OpenPositionResource extends JsonResource
             'id' => $this->id,
             'asset' => $this->asset,
             'buy_price' => (float) $this->buy_price,
-            'original_amount' => (float) $this->original_amount,
-            'remaining_amount' => (float) $this->remaining_amount,
+            'amount' => (float) $this->amount,
             'total' => (float) $this->total,
             'status' => $this->status,
             'created_at' => $this->created_at?->toIso8601String(),
             'created_at_label' => $this->created_at?->format('d M Y'),
-            'analysis_group' => $this->whenLoaded('analysisGroup', fn () => [
+            'analysis_group' => $this->whenLoaded('analysisGroup', fn() => [
                 'id' => $this->analysisGroup->id,
-                'key' => $this->analysisGroup->key_analysis_group,
-                'name' => $this->analysisGroup->key_analysis_group,
+                'key' => $this->analysisGroup->uuid,
+                'name' => $this->analysisGroup->uuid,
             ]),
         ];
     }

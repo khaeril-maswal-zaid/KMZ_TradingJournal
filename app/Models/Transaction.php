@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Traits\HasUuid;
+use App\Traits\HasUuidTransaction;
 use Database\Factories\TransactionFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -12,6 +14,7 @@ class Transaction extends Model
 {
     /** @use HasFactory<TransactionFactory> */
     use HasFactory;
+    use HasUuid;
 
     protected $fillable = [
         'user_id',

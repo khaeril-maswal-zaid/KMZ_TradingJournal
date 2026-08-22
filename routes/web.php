@@ -19,10 +19,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::get('trade-matching', [AnalysisGroupController::class, 'index'])->name('tradematching.index');
     Route::post('trade-matching', [AnalysisGroupController::class, 'store'])->name('tradematching.store');
-    Route::get('trade-matching/{analysisGroup:key_analysis_group}', [AnalysisGroupController::class, 'show'])->name('tradematching.show');
-    Route::delete('trade-matching/{analysisGroup:key_analysis_group}', [AnalysisGroupController::class, 'destroy'])->name('tradematching.destroy');
-    Route::post('trade-matching/{analysisGroup:key_analysis_group}/transactions', [AnalysisGroupController::class, 'attach'])->name('tradematching.attach');
-    Route::delete('trade-matching/{analysisGroup:key_analysis_group}/transactions/{transaction}', [AnalysisGroupController::class, 'detach'])->name('tradematching.detach');
+    Route::get('trade-matching/{analysisGroup:uuid}', [AnalysisGroupController::class, 'show'])->name('tradematching.show');
+    Route::delete('trade-matching/{analysisGroup:uuid}', [AnalysisGroupController::class, 'destroy'])->name('tradematching.destroy');
+    Route::post('trade-matching/{analysisGroup:uuid}/transactions', [AnalysisGroupController::class, 'attach'])->name('tradematching.attach');
+    Route::delete('trade-matching/{analysisGroup:uuid}/transactions/{transaction}', [AnalysisGroupController::class, 'detach'])->name('tradematching.detach');
 });
 
-require __DIR__.'/settings.php';
+require __DIR__ . '/settings.php';

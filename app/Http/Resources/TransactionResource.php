@@ -28,7 +28,7 @@ class TransactionResource extends JsonResource
             'notes' => $this->notes,
             'is_analyzed' => (bool) $this->analysisGroupAssignment?->analysis_group_id,
             'analysis_group' => $this->whenLoaded('analysisGroupAssignment', fn() => $this->analysisGroupAssignment?->analysisGroup ? [
-                'key' => $this->analysisGroupAssignment->analysisGroup->key_analysis_group,
+                'key' => $this->analysisGroupAssignment->analysisGroup->uuid,
             ] : null),
         ];
     }

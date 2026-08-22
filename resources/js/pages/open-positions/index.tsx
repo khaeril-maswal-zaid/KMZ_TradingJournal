@@ -217,10 +217,7 @@ export default function OpenPositionsIndex({
                                             Harga Modal
                                         </TableHead>
                                         <TableHead className="text-right">
-                                            Original Amount
-                                        </TableHead>
-                                        <TableHead className="text-right">
-                                            Remaining Amount
+                                            Amount
                                         </TableHead>
                                         <TableHead className="text-right">
                                             Total Modal
@@ -276,16 +273,11 @@ export default function OpenPositionsIndex({
                                                 </TableCell>
                                                 <TableCell className="text-right text-xs tabular-nums">
                                                     {formatCrypto(
-                                                        position.original_amount,
+                                                        position.amount,
                                                         position.asset,
                                                     )}
                                                 </TableCell>
-                                                <TableCell className="text-right text-xs tabular-nums">
-                                                    {formatCrypto(
-                                                        position.remaining_amount,
-                                                        position.asset,
-                                                    )}
-                                                </TableCell>
+
                                                 <TableCell className="text-right text-xs font-medium tabular-nums">
                                                     {formatMoney(
                                                         position.total,

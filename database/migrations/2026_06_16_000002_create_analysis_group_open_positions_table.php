@@ -15,8 +15,6 @@ return new class extends Migration
             $table->id();
             $table->foreignId('analysis_group_id')->constrained()->cascadeOnDelete();
             $table->foreignId('open_position_id')->constrained()->cascadeOnDelete();
-            $table->decimal('allocated_amount', 24, 10);
-            $table->decimal('allocated_total', 24, 10);
             $table->timestamps();
 
             $table->unique(['analysis_group_id', 'open_position_id'], 'analysis_group_open_position_unique');

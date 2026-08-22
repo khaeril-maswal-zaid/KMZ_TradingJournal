@@ -53,17 +53,30 @@ export default function AnalysisGroupsIndex({
     availableTransactions,
 }: Props) {
     const [open, setOpen] = useState(false);
-    const [selectedIds, setSelectedIds] = useState<number[]>([]);
     const [processing, setProcessing] = useState(false);
     const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
     const [groupToDelete, setGroupToDelete] = useState<string | null>(null);
+    const [selectedTransactions, setSelectedTransactions] = useState<string[]>(
+        [],
+    );
+    const [selectedOpenPositions, setSelectedOpenPositions] = useState<
+        string[]
+    >([]);
 
-    const toggleTransaction = (id: number): void => {
-        setSelectedIds((current) =>
-            current.includes(id)
-                ? current.filter((item) => item !== id)
-                : [...current, id],
-        );
+    const toggleTransaction = (uuid: string, source?: string): void => {
+        if (source == 'TRANSACTION') {
+            setSelectedTransactions((current) =>
+                current.includes(uuid)
+                    ? current.filter((item) => item !== uuid)
+                    : [...current, uuid],
+            );
+        } else {
+            setSelectedOpenPositions((current) =>
+                current.includes(uuid)
+                    ? current.filter((item) => item !== uuid)
+                    : [...current, uuid],
+            );
+        }
     };
 
     const submit = (): void => {
@@ -72,13 +85,15 @@ export default function AnalysisGroupsIndex({
         router.post(
             store.url(),
             {
-                transaction_ids: selectedIds,
+                transaction_ids: selectedTransactions,
+                open_position_allocations: selectedOpenPositions,
             },
             {
                 preserveScroll: true,
                 onSuccess: () => {
                     setOpen(false);
-                    setSelectedIds([]);
+                    setSelectedTransactions([]);
+                    setSelectedOpenPositions([]);
                 },
                 onError: (errors) => {
                     toast.error(Object.values(errors)[0] as string);
@@ -157,8 +172,11 @@ export default function AnalysisGroupsIndex({
                                                             transaction.selection_id
                                                         }
                                                         data-state={
-                                                            selectedIds.includes(
-                                                                transaction.id,
+                                                            selectedOpenPositions.includes(
+                                                                transaction.uuid,
+                                                            ) ||
+                                                            selectedTransactions.includes(
+                                                                transaction.uuid,
                                                             )
                                                                 ? 'selected'
                                                                 : undefined
@@ -166,7 +184,8 @@ export default function AnalysisGroupsIndex({
                                                         className="cursor-pointer"
                                                         onClick={() =>
                                                             toggleTransaction(
-                                                                transaction.id,
+                                                                transaction.uuid,
+                                                                transaction.source,
                                                             )
                                                         }
                                                     >
@@ -176,12 +195,18 @@ export default function AnalysisGroupsIndex({
                                                             }
                                                         >
                                                             <Checkbox
-                                                                checked={selectedIds.includes(
-                                                                    transaction.id,
-                                                                )}
+                                                                checked={
+                                                                    selectedOpenPositions.includes(
+                                                                        transaction.uuid,
+                                                                    ) ||
+                                                                    selectedTransactions.includes(
+                                                                        transaction.uuid,
+                                                                    )
+                                                                }
                                                                 onCheckedChange={() =>
                                                                     toggleTransaction(
-                                                                        transaction.id,
+                                                                        transaction.uuid,
+                                                                        transaction.source,
                                                                     )
                                                                 }
                                                             />

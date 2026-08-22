@@ -46,7 +46,7 @@ class AnalysisGroupSelectableItemService
         $openPositions = OpenPosition::query()
             ->with('analysisGroup')
             ->where('status', OpenPosition::STATUS_OPEN)
-            ->where('remaining_amount', '>', 0)
+            ->where('amount', '>', 0)
             ->whereHas('analysisGroup', fn($query) => $query->where('user_id', $userId))
             ->when($analysisGroup, function ($query) use ($analysisGroup): void {
                 $query

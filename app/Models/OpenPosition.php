@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Traits\HasUuid;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -9,6 +10,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class OpenPosition extends Model
 {
+    use HasUuid;
+
     public const STATUS_OPEN = 'OPEN';
 
     public const STATUS_CLOSED = 'CLOSED';
@@ -17,8 +20,7 @@ class OpenPosition extends Model
         'source_analysis_group_id',
         'asset',
         'buy_price',
-        'original_amount',
-        'remaining_amount',
+        'amount',
         'total',
         'status',
     ];

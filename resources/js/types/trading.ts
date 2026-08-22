@@ -5,6 +5,7 @@ export type SelectableAnalysisItemSource = 'TRANSACTION' | 'OPEN_POSITION';
 
 export type Transaction = {
     id: number;
+    uuid: string;
     pair: string;
     selection_id: string;
     base_asset: string;
@@ -19,6 +20,7 @@ export type Transaction = {
     executed_at_label: string;
     notes: string | null;
     is_analyzed: boolean;
+    source: string;
     analysis_group?: {
         key: string;
     } | null;
@@ -45,10 +47,10 @@ export type AnalysisGroup = {
 
 export type OpenPosition = {
     id: number;
+    uuid: string;
     asset: string;
     buy_price: number;
-    original_amount: number;
-    remaining_amount: number;
+    amount: number;
     total: number;
     status: OpenPositionStatus;
     created_at: string;
