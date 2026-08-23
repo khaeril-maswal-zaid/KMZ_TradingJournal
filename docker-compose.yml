@@ -1,19 +1,21 @@
 version: '3.9'
 
 services:
-  journalcripto_app:
+  criptojournal_app:
     build:
       context: .
       dockerfile: Dockerfile
 
-    image: kmz_criptojournal:latest
-
+    image: criptojournal:latest
     container_name: kmz_criptojournal
-
     restart: unless-stopped
 
     networks:
-      - app-network
+      - nginx-network
+      - dbmysql-network
+
+    volumes:
+      - public_data:/var/www/public
 
     environment:
       APP_ENV: local
@@ -24,16 +26,16 @@ services:
       DB_HOST: mysql
       DB_PORT: 3306
       DB_DATABASE: KMZ_cripto_journal
-      DB_USERNAME: UserKmzOs
-      DB_PASSWORD: 'App08062026$$_'
+      DB_USERNAME: UserKmz001
+      DB_PASSWORD: 'PassKmz2026$'
 
-    volumes:
-      - public_data:/var/www/public
+networks:
+  nginx-network:
+    external: true
+
+  dbmysql-network:
+    external: true
 
 volumes:
   public_data:
-    name: tradingjurnal_public
-
-networks:
-  app-network:
-    external: true
+    name: criptojournal_public
