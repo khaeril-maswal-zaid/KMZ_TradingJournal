@@ -91,10 +91,11 @@ class AnalysisGroupController extends Controller
     {
         $validated = $request->validated();
 
+
         try {
             DB::transaction(function () use ($analysisGroup, $calculator, $openPositionService, $validated): void {
-                if (! empty($validated['transaction_ids'])) {
-                    $this->attachTransactions($analysisGroup, $validated['transaction_ids']);
+                if (! empty($validated['transaction_uuids'])) {
+                    $this->attachTransactions($analysisGroup, $validated['transaction_uuids']);
                 }
 
                 if (! empty($validated['open_position_allocations'])) {

@@ -76,27 +76,26 @@ export default function AnalysisGroupShow({
     group,
     buyTransactions,
     sellTransactions,
-    sellBreakdown, //cek di be untuk apa
-    availableTransactions,
     sellPlannerSummary,
+    availableTransactions,
 }: Props) {
     const analysis = group.data;
     const [open, setOpen] = useState(false);
     const [planner, setPlanner] = useState(false);
-    const [selectedIds, setSelectedIds] = useState<number[]>([]);
+    const [selectedUuids, setSelectedUuids] = useState<string[]>([]);
     const [processing, setProcessing] = useState(false);
     const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
     const [transactionToDelete, setTransactionToDelete] =
         useState<Transaction | null>(null);
 
-    console.log(availableTransactions);
-
     const selectedTotal = useMemo(
         () =>
             availableTransactions?.data
-                .filter((transaction) => selectedIds.includes(transaction.id))
+                .filter((transaction) =>
+                    selectedUuids.includes(transaction.uuid),
+                )
                 .reduce((total, transaction) => total + transaction.total, 0),
-        [availableTransactions?.data, selectedIds],
+        [availableTransactions?.data, selectedUuids],
     );
 
     const toggle = (transaction: Transaction): void => {
@@ -104,10 +103,10 @@ export default function AnalysisGroupShow({
             return;
         }
 
-        setSelectedIds((current) =>
-            current.includes(transaction.id)
-                ? current.filter((id) => id !== transaction.id)
-                : [...current, transaction.id],
+        setSelectedUuids((current) =>
+            current.includes(transaction.uuid)
+                ? current.filter((uuid) => uuid !== transaction.uuid)
+                : [...current, transaction.uuid],
         );
     };
 
@@ -115,12 +114,12 @@ export default function AnalysisGroupShow({
         setProcessing(true);
         router.post(
             attach.url(analysis.key),
-            { transaction_ids: selectedIds },
+            { transaction_uuids: selectedUuids },
             {
                 preserveScroll: true,
                 onSuccess: () => {
                     setOpen(false);
-                    setSelectedIds([]);
+                    setSelectedUuids([]);
                 },
                 onFinish: () => setProcessing(false),
             },
@@ -488,7 +487,7 @@ export default function AnalysisGroupShow({
                                 </DialogHeader>
                                 <div className="rounded-lg border bg-muted/30 p-4 text-sm">
                                     <p className="font-medium">
-                                        {selectedIds.length} transaksi dipilih
+                                        {selectedUuids.length} transaksi dipilih
                                     </p>
                                     <p className="mt-1 text-muted-foreground">
                                         Subtotal pilihan:{' '}
@@ -534,8 +533,8 @@ export default function AnalysisGroupShow({
                                                                 <Lock className="size-4 text-muted-foreground" />
                                                             ) : (
                                                                 <Checkbox
-                                                                    checked={selectedIds.includes(
-                                                                        transaction.id,
+                                                                    checked={selectedUuids.includes(
+                                                                        transaction.uuid,
                                                                     )}
                                                                     onCheckedChange={() =>
                                                                         toggle(
@@ -602,7 +601,7 @@ export default function AnalysisGroupShow({
                                         onClick={attacher}
                                         disabled={
                                             processing ||
-                                            selectedIds.length === 0
+                                            selectedUuids.length === 0
                                         }
                                     >
                                         {processing && (

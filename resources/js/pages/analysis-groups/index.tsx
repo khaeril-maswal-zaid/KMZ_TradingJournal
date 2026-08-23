@@ -103,8 +103,6 @@ export default function AnalysisGroupsIndex({
         );
     };
 
-    console.log(availableTransactions);
-
     return (
         <>
             <Head title="Trade Matching" />
