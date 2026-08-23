@@ -45,9 +45,6 @@ class OpenPositionService
             $originalAmount = max($totalBuyAmount - $totalSellAmount, 0);
             $averageBuyPrice = $totalBuyAmount > 0 ? $totalBuyValue / $totalBuyAmount : 0;
 
-
-            dd($totalBuyAmount);
-
             if ($sellTransactions->isEmpty() || $originalAmount <= 0) {
                 $this->closePosition($analysisGroup, $asset);
 
@@ -69,8 +66,6 @@ class OpenPositionService
                 'total' => $position->amount * $averageBuyPrice,
                 'status' => OpenPosition::STATUS_OPEN,
             ])->save();
-
-            // dd($position);
         }
 
         $analysisGroup->openPositions()
