@@ -1,10 +1,10 @@
-import { TransactionImportSummary } from '@/types/transactions';
 import {
     ArrowDownToLine,
     ArrowUpFromLine,
     CheckCircle2,
     Rows3,
 } from 'lucide-react';
+import type { TransactionImportSummary } from '@/types/transactions';
 
 type Props = {
     summary: TransactionImportSummary;

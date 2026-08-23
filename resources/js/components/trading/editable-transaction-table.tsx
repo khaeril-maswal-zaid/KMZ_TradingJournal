@@ -17,7 +17,7 @@ import {
     transactionImportColumnsV2,
 } from '@/hooks/use-transaction-import-table';
 import { cn } from '@/lib/utils';
-import {
+import type {
     TransactionImportField,
     TransactionImportFieldV2,
     TransactionImportRow,

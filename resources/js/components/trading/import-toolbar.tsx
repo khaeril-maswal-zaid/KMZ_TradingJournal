@@ -1,8 +1,8 @@
 import { Plus, RotateCcw, Upload } from 'lucide-react';
+import { ValidationBadge } from '@/components/trading/validation-badge';
 import { Button } from '@/components/ui/button';
 import { Spinner } from '@/components/ui/spinner';
-import { ValidationBadge } from '@/components/trading/validation-badge';
-import { TransactionImportSummary } from '@/types/transactions';
+import type { TransactionImportSummary } from '@/types/transactions';
 
 type Props = {
     summary: TransactionImportSummary;

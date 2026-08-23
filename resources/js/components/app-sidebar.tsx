@@ -10,7 +10,6 @@ import {
 import AppLogo from '@/components/app-logo';
 import { NavMain } from '@/components/nav-main';
 import { NavUser } from '@/components/nav-user';
-import AppearanceToggleTab from '@/components/appearance-tabs';
 import {
     Sidebar,
     SidebarContent,
@@ -22,8 +21,8 @@ import {
 } from '@/components/ui/sidebar';
 import { dashboard } from '@/routes';
 import { index as openPositionsIndex } from '@/routes/openpositions';
-import { index as transIndex } from '@/routes/transactions';
 import { index as matchingsIndex } from '@/routes/tradematching';
+import { index as transIndex } from '@/routes/transactions';
 import type { NavItem } from '@/types';
 
 const mainNavItems: NavItem[] = [

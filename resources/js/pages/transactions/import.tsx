@@ -6,11 +6,11 @@ import { EditableTransactionTable } from '@/components/trading/editable-transact
 import { ImportSummaryCards } from '@/components/trading/import-summary-cards';
 import { ImportToolbar } from '@/components/trading/import-toolbar';
 
+import { Button } from '@/components/ui/button';
 import { useTransactionImportTable } from '@/hooks/use-transaction-import-table';
-import { BreadcrumbItem } from '@/types';
 import { importstore } from '@/routes/transactions';
 import { index } from '@/routes/transactions';
-import { Button } from '@/components/ui/button';
+import type { BreadcrumbItem } from '@/types';
 
 export default function TransactionsImport() {
     const {
@@ -53,6 +53,7 @@ export default function TransactionsImport() {
 
         if (summary.invalidRows > 0) {
             toast.error('Periksa kembali sel yang ditandai.');
+
             return;
         }
 

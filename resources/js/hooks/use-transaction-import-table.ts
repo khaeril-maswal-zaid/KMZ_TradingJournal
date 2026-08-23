@@ -1,4 +1,5 @@
-import {
+import { useMemo, useState } from 'react';
+import type {
     TransactionImportColumn,
     TransactionImportField,
     TransactionImportFieldV2,
@@ -9,7 +10,6 @@ import {
     TransactionImportVersion,
     TransactionImportColumnV2,
 } from '@/types/transactions';
-import { useMemo, useState } from 'react';
 
 export const transactionImportColumns: TransactionImportColumn[] = [
     {
@@ -275,6 +275,7 @@ export const validateImportRowV2 = (
 
     if (row.time.trim()) {
         const parsedDate = parseDateV2(row.time);
+
         if (Number.isNaN(Date.parse(parsedDate))) {
             errors.time = 'Tanggal tidak valid';
         }
@@ -286,6 +287,7 @@ export const validateImportRowV2 = (
 
     if (row.price.trim()) {
         const priceValue = normalizeDecimalInput(row.price);
+
         if (Number.isNaN(Number(priceValue))) {
             errors.price = 'Angka tidak valid';
         }
@@ -294,10 +296,12 @@ export const validateImportRowV2 = (
     // Validate executed format (should contain digit and letter)
     if (row.executed.trim()) {
         const executedMatch = row.executed.match(/^([0-9.,]+)([A-Z]+)$/i);
+
         if (!executedMatch) {
             errors.executed = 'Format: 0.00035BTC';
         } else {
             const numericPart = normalizeDecimalInput(executedMatch[1]);
+
             if (Number.isNaN(Number(numericPart))) {
                 errors.executed = 'Angka tidak valid';
             }
@@ -307,10 +311,12 @@ export const validateImportRowV2 = (
     // Validate amount format (should contain digit and letter)
     if (row.amount.trim()) {
         const amountMatch = row.amount.match(/^([0-9.,]+)([A-Z]+)$/i);
+
         if (!amountMatch) {
             errors.amount = 'Format: 22.89973USDT';
         } else {
             const numericPart = normalizeDecimalInput(amountMatch[1]);
+
             if (Number.isNaN(Number(numericPart))) {
                 errors.amount = 'Angka tidak valid';
             }
@@ -320,10 +326,12 @@ export const validateImportRowV2 = (
     // Validate fee format (should contain digit and letter, optional)
     if (row.fee.trim()) {
         const feeMatch = row.fee.match(/^([0-9.,]+)([A-Z]+)$/i);
+
         if (!feeMatch) {
             errors.fee = 'Format: 0.00000035BTC';
         } else {
             const numericPart = normalizeDecimalInput(feeMatch[1]);
+
             if (Number.isNaN(Number(numericPart))) {
                 errors.fee = 'Angka tidak valid';
             }
@@ -338,9 +346,11 @@ const extractValueAndCoin = (
     value: string,
 ): { value: string; coin: string } => {
     const match = value.trim().match(/^([0-9.,]+)([A-Z]+)$/i);
+
     if (!match) {
         return { value: '', coin: '' };
     }
+
     return {
         value: normalizeDecimalInput(match[1]),
         coin: match[2].toUpperCase(),
@@ -593,6 +603,7 @@ export function useTransactionImportTable(initialRows = 8) {
         if (version === 'v2') {
             return rowsV2.map((row) => parseV2toV1(row));
         }
+
         return rows;
     }, [version, rows, rowsV2]);
 

@@ -1,6 +1,6 @@
 import { Badge } from '@/components/ui/badge';
-import { cn } from '@/lib/utils';
 import { statusLabel } from '@/lib/trading';
+import { cn } from '@/lib/utils';
 import type { AnalysisStatus } from '@/types/trading';
 
 export function ProfitBadge({

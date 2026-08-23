@@ -1,6 +1,5 @@
 import { Head, Link, router } from '@inertiajs/react';
 import {
-    AlertTriangle,
     ArrowUpDown,
     FileSpreadsheet,
     MoreHorizontal,
@@ -9,6 +8,7 @@ import {
 } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'sonner';
+import { TransactionTypeBadge } from '@/components/trading/transaction-type-badge';
 import {
     AlertDialog,
     AlertDialogAction,
@@ -19,7 +19,6 @@ import {
     AlertDialogHeader,
     AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { TransactionTypeBadge } from '@/components/trading/transaction-type-badge';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -30,6 +29,7 @@ import {
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import {
     Select,
     SelectContent,
@@ -46,11 +46,10 @@ import {
     TableRow,
 } from '@/components/ui/table';
 import { formatCrypto, formatMoney } from '@/lib/trading';
-import type { Paginated, Transaction } from '@/types';
-import { clear, index as indexTrans } from '@/routes/transactions';
 import { index as indexMatching } from '@/routes/tradematching';
 import { show } from '@/routes/tradematching';
-import { Label } from '@/components/ui/label';
+import { clear, index as indexTrans } from '@/routes/transactions';
+import type { Paginated, Transaction } from '@/types';
 
 type Filters = {
     search: string;
@@ -116,6 +115,7 @@ export default function TransactionsIndex({ transactions, filters }: Props) {
 
         if (!password.trim()) {
             toast.error('Password wajib diisi.');
+
             return;
         }
 

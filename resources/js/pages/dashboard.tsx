@@ -9,7 +9,6 @@ import {
     ReceiptText,
     TrendingUp,
 } from 'lucide-react';
-import { ProfitBadge } from '@/components/trading/profit-badge';
 import { ProfitCard } from '@/components/trading/profit-card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -25,7 +24,6 @@ import {
 import { formatCrypto, formatMoney, formatPercent } from '@/lib/trading';
 import { dashboard } from '@/routes';
 import type { AnalysisGroup, ResourceCollection, Transaction } from '@/types';
-import { TransactionTypeBadge } from '@/components/trading/transaction-type-badge';
 
 type PortfolioAsset = {
     asset: string;
@@ -62,7 +60,6 @@ export default function Dashboard({
     stats,
     monthlyProfit,
     portfolioAssets,
-    recentGroups,
 }: DashboardProps) {
     const maxAbsProfit = Math.max(
         ...monthlyProfit.map((item) => Math.abs(item.profit)),

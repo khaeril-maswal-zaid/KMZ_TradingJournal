@@ -40,9 +40,9 @@ import {
     TooltipTrigger,
 } from '@/components/ui/tooltip';
 import { formatCrypto, formatMoney } from '@/lib/trading';
-import type { OpenPosition, OpenPositionStatus, Paginated } from '@/types';
 import { index as openPositionsIndex } from '@/routes/openpositions';
 import { show as showMatching } from '@/routes/tradematching';
+import type { OpenPosition, OpenPositionStatus, Paginated } from '@/types';
 
 type Filters = {
     search: string;
@@ -60,12 +60,6 @@ type Props = {
     filters: Filters;
     summary: Summary;
 };
-
-const statusTabs: { label: string; value: Filters['status'] }[] = [
-    { label: 'Semua', value: 'all' },
-    { label: 'Terbuka', value: 'OPEN' },
-    { label: 'Tertutup', value: 'CLOSED' },
-];
 
 function paginationLabel(label: string): string {
     return label.replace('&laquo;', '<').replace('&raquo;', '>');

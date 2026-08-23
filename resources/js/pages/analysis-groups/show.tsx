@@ -2,23 +2,17 @@ import { Head, router } from '@inertiajs/react';
 import {
     BarChart3,
     Calculator,
-    CircleDollarSign,
     Loader2,
     Lock,
     Plus,
-    ReceiptText,
-    Target,
     Trash2,
     TrendingUp,
 } from 'lucide-react';
 import { useMemo, useState } from 'react';
+import { HistoryCard } from '@/components/trading/history-card';
 import { ProfitBadge } from '@/components/trading/profit-badge';
 import { ProfitCard } from '@/components/trading/profit-card';
 import { TransactionTypeBadge } from '@/components/trading/transaction-type-badge';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Checkbox } from '@/components/ui/checkbox';
 import {
     AlertDialog,
     AlertDialogAction,
@@ -29,6 +23,10 @@ import {
     AlertDialogHeader,
     AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Checkbox } from '@/components/ui/checkbox';
 import {
     Dialog,
     DialogContent,
@@ -38,6 +36,8 @@ import {
     DialogTitle,
     DialogTrigger,
 } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import {
     Table,
     TableBody,
@@ -47,6 +47,7 @@ import {
     TableRow,
 } from '@/components/ui/table';
 import { formatCrypto, formatMoney, formatPercent } from '@/lib/trading';
+import { attach, detach, index } from '@/routes/tradematching';
 import type {
     AnalysisGroup,
     ResourceCollection,
@@ -54,10 +55,6 @@ import type {
     SellBreakdown,
     Transaction,
 } from '@/types';
-import { attach, detach, index } from '@/routes/tradematching';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { HistoryCard } from '@/components/trading/history-card';
 
 type Props = {
     group: ResourceItem<AnalysisGroup>;

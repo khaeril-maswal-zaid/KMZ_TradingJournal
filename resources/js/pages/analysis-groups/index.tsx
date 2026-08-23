@@ -1,8 +1,19 @@
 import { Head, Link, router } from '@inertiajs/react';
 import { Loader2, Plus, Trash2 } from 'lucide-react';
 import { useState } from 'react';
+import { toast } from 'sonner';
 import { ProfitBadge } from '@/components/trading/profit-badge';
 import { TransactionTypeBadge } from '@/components/trading/transaction-type-badge';
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -24,24 +35,13 @@ import {
     TableRow,
 } from '@/components/ui/table';
 import { formatCrypto, formatMoney, formatPercent } from '@/lib/trading';
+import { index, show, store, destroy } from '@/routes/tradematching';
 import type {
     AnalysisGroup,
     Paginated,
     ResourceCollection,
     Transaction,
 } from '@/types';
-import { index, show, store, destroy } from '@/routes/tradematching';
-import {
-    AlertDialog,
-    AlertDialogAction,
-    AlertDialogCancel,
-    AlertDialogContent,
-    AlertDialogDescription,
-    AlertDialogFooter,
-    AlertDialogHeader,
-    AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
-import { toast } from 'sonner';
 
 type Props = {
     groups: Paginated<AnalysisGroup>;
@@ -167,7 +167,8 @@ export default function AnalysisGroupsIndex({
                                                 (transaction, key) => (
                                                     <TableRow
                                                         key={
-                                                            transaction.selection_id
+                                                            transaction.selection_id ||
+                                                            key
                                                         }
                                                         data-state={
                                                             selectedOpenPositions.includes(
@@ -395,7 +396,9 @@ export default function AnalysisGroupsIndex({
                                     <AlertDialogAction
                                         className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                                         onClick={() => {
-                                            if (!groupToDelete) return;
+                                            if (!groupToDelete) {
+                                                return;
+                                            }
 
                                             router.delete(
                                                 destroy.url(groupToDelete),

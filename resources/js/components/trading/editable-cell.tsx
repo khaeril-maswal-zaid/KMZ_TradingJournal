@@ -1,6 +1,6 @@
 import type { KeyboardEvent, ClipboardEvent } from 'react';
 import { cn } from '@/lib/utils';
-import { TransactionImportField } from '@/types/transactions';
+import type { TransactionImportField } from '@/types/transactions';
 
 type Props = {
     rowId: string;
