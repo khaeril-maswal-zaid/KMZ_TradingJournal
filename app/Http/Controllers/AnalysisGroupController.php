@@ -140,7 +140,7 @@ class AnalysisGroupController extends Controller
     }
 
     /**
-     * @param  array<int, int>  $transactionIds
+     * @param  array<int, int>  $transactionUuids
      */
     private function attachTransactions(AnalysisGroup $analysisGroup, array $transactionUuids): void
     {
