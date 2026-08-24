@@ -14,10 +14,10 @@ class StoreAnalysisGroupRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'transaction_ids' => ['nullable', 'array'],
-            'transaction_ids.*' => ['string', 'exists:transactions,uuid', 'unique:analysis_group_transactions,transaction_id'],
+            'transaction_uuids' => ['nullable', 'array'],
+            'transaction_uuids.*' => ['string', 'exists:transactions,uuid'],
             'open_position_allocations' => ['nullable', 'array'],
-            'open_position_allocations.*' => ['required', 'string', 'exists:open_positions,uuid',  'unique:analysis_group_transactions,transaction_id'],
+            'open_position_allocations.*' => ['required', 'string', 'exists:open_positions,uuid'],
 
         ];
     }
@@ -25,9 +25,8 @@ class StoreAnalysisGroupRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'transaction_ids.array' => 'Daftar transaksi tidak valid.',
-            'transaction_ids.*.exists' => 'Transaksi yang dipilih tidak ditemukan.',
-            'transaction_ids.*.unique' => 'Transaksi sudah masuk ke grup analisa lain.',
+            'transaction_uuids.array' => 'Daftar transaksi tidak valid.',
+            'transaction_uuids.*.exists' => 'Transaksi yang dipilih tidak ditemukan.',
             'open_position_allocations.array' => 'Daftar posisi terbuka tidak valid.',
         ];
     }

@@ -85,7 +85,7 @@ export default function AnalysisGroupsIndex({
         router.post(
             store.url(),
             {
-                transaction_ids: selectedTransactions,
+                transaction_uuids: selectedTransactions,
                 open_position_allocations: selectedOpenPositions,
             },
             {

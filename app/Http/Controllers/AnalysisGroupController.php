@@ -34,7 +34,7 @@ class AnalysisGroupController extends Controller
             ),
 
             'availableTransactions' => SelectableAnalysisItemResource::collection(
-                $selectableItems->forNewGroup(Auth::id())
+                $selectableItems->forNewGroup()
             ),
         ]);
     }
@@ -44,13 +44,23 @@ class AnalysisGroupController extends Controller
         $validated = $request->validated();
         $group = null;
 
+        foreach ($request->transaction_uuids as $uuid) {
+            $transactionId = Transaction::where('uuid', $uuid)->value('id');
+
+            if (AnalysisGroupTransaction::where('transaction_id', $transactionId)->exists()) {
+                Inertia::flash('toast', ['type' => 'error', 'message' => 'Transaksi sudah masuk ke grup analisa lain.']);
+
+                return back();
+            }
+        }
+
         DB::transaction(function () use (&$group, $calculator, $openPositionService, $validated): void {
             $group = AnalysisGroup::create([
                 'user_id' => Auth::id(),
             ]);
 
-            if (! empty($validated['transaction_ids'])) {
-                $this->attachTransactions($group, $validated['transaction_ids']);
+            if (! empty($validated['transaction_uuids'])) {
+                $this->attachTransactions($group, $validated['transaction_uuids']);
             }
 
             if (! empty($validated['open_position_allocations'])) {
@@ -62,8 +72,8 @@ class AnalysisGroupController extends Controller
 
         Inertia::flash('toast', ['type' => 'success', 'message' => 'Grup analisa berhasil dibuat.']);
 
-        return to_route('tradematching.index');
-        // return to_route('tradematching.show', $group);
+        // return to_route('tradematching.index');
+        return to_route('tradematching.show', $group);
     }
 
     public function show(AnalysisGroup $analysisGroup, AnalysisGroupCalculationService $calculator, AnalysisGroupSelectableItemService $selectableItems): Response
@@ -90,7 +100,6 @@ class AnalysisGroupController extends Controller
     public function attach(AnalysisGroup $analysisGroup, AttachAnalysisGroupTransactionsRequest $request, AnalysisGroupCalculationService $calculator, OpenPositionService $openPositionService): RedirectResponse
     {
         $validated = $request->validated();
-
 
         try {
             DB::transaction(function () use ($analysisGroup, $calculator, $openPositionService, $validated): void {

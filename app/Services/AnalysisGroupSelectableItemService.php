@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\AnalysisGroup;
+use Illuminate\Support\Facades\Auth;
 use App\Models\OpenPosition;
 use App\Models\Transaction;
 use Illuminate\Support\Collection;
@@ -12,8 +13,9 @@ class AnalysisGroupSelectableItemService
     /**
      * @return Collection<int, Transaction|OpenPosition>
      */
-    public function forNewGroup(int $userId): Collection
+    public function forNewGroup(): Collection
     {
+        $userId =  Auth::id();
         $transactions = Transaction::query()
             ->where('user_id', $userId)
             ->doesntHave('analysisGroupAssignment')
