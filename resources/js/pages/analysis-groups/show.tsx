@@ -47,11 +47,12 @@ import {
     TableRow,
 } from '@/components/ui/table';
 import { formatCrypto, formatMoney, formatPercent } from '@/lib/trading';
-import { attach, detach, index } from '@/routes/tradematching';
+import { attach, detach, index, show } from '@/routes/tradematching';
 import type {
     AnalysisGroup,
     ResourceCollection,
     ResourceItem,
+    SelectableAnalysisItem,
     SellBreakdown,
     Transaction,
 } from '@/types';
@@ -61,7 +62,8 @@ type Props = {
     buyTransactions: ResourceCollection<Transaction>;
     sellTransactions: ResourceCollection<Transaction>;
     sellBreakdown: SellBreakdown[];
-    availableTransactions: ResourceCollection<Transaction>;
+    availableTransactions: ResourceCollection<SelectableAnalysisItem>;
+    includeOpenPositions: boolean;
     sellPlannerSummary: {
         total_buy_amount: number;
         total_buy_cost: number;
@@ -75,11 +77,18 @@ export default function AnalysisGroupShow({
     sellTransactions,
     sellPlannerSummary,
     availableTransactions,
+    includeOpenPositions: initialIncludeOpenPositions,
 }: Props) {
     const analysis = group.data;
     const [open, setOpen] = useState(false);
     const [planner, setPlanner] = useState(false);
     const [selectedUuids, setSelectedUuids] = useState<string[]>([]);
+    const [selectedOpenPositionUuids, setSelectedOpenPositionUuids] = useState<
+        string[]
+    >([]);
+    const [includeOpenPositions, setIncludeOpenPositions] = useState(
+        initialIncludeOpenPositions,
+    );
     const [processing, setProcessing] = useState(false);
     const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
     const [transactionToDelete, setTransactionToDelete] =
@@ -88,35 +97,67 @@ export default function AnalysisGroupShow({
     const selectedTotal = useMemo(
         () =>
             availableTransactions?.data
-                .filter((transaction) =>
-                    selectedUuids.includes(transaction.uuid),
+                .filter(
+                    (transaction) =>
+                        selectedUuids.includes(transaction.uuid) ||
+                        selectedOpenPositionUuids.includes(transaction.uuid),
                 )
                 .reduce((total, transaction) => total + transaction.total, 0),
-        [availableTransactions?.data, selectedUuids],
+        [availableTransactions?.data, selectedOpenPositionUuids, selectedUuids],
     );
 
-    const toggle = (transaction: Transaction): void => {
+    const toggleOpenPositions = (enabled: boolean): void => {
+        setIncludeOpenPositions(enabled);
+
+        if (!enabled) {
+            setSelectedOpenPositionUuids([]);
+        }
+
+        router.get(
+            show.url(analysis.key),
+            { include_open_positions: enabled ? 1 : undefined },
+            {
+                only: ['availableTransactions', 'includeOpenPositions'],
+                preserveState: true,
+                preserveScroll: true,
+            },
+        );
+    };
+
+    const toggle = (transaction: SelectableAnalysisItem): void => {
         if (transaction.is_analyzed) {
             return;
         }
 
-        setSelectedUuids((current) =>
-            current.includes(transaction.uuid)
-                ? current.filter((uuid) => uuid !== transaction.uuid)
-                : [...current, transaction.uuid],
-        );
+        if (transaction.source === 'OPEN_POSITION') {
+            setSelectedOpenPositionUuids((current) =>
+                current.includes(transaction.uuid)
+                    ? current.filter((uuid) => uuid !== transaction.uuid)
+                    : [...current, transaction.uuid],
+            );
+        } else {
+            setSelectedUuids((current) =>
+                current.includes(transaction.uuid)
+                    ? current.filter((uuid) => uuid !== transaction.uuid)
+                    : [...current, transaction.uuid],
+            );
+        }
     };
 
     const attacher = (): void => {
         setProcessing(true);
         router.post(
             attach.url(analysis.key),
-            { transaction_uuids: selectedUuids },
+            {
+                transaction_uuids: selectedUuids,
+                open_position_allocations: selectedOpenPositionUuids,
+            },
             {
                 preserveScroll: true,
                 onSuccess: () => {
                     setOpen(false);
                     setSelectedUuids([]);
+                    setSelectedOpenPositionUuids([]);
                 },
                 onFinish: () => setProcessing(false),
             },
@@ -484,13 +525,26 @@ export default function AnalysisGroupShow({
                                 </DialogHeader>
                                 <div className="rounded-lg border bg-muted/30 p-4 text-sm">
                                     <p className="font-medium">
-                                        {selectedUuids.length} transaksi dipilih
+                                        {selectedUuids.length +
+                                            selectedOpenPositionUuids.length}{' '}
+                                        item dipilih
                                     </p>
                                     <p className="mt-1 text-muted-foreground">
                                         Subtotal pilihan:{' '}
                                         {formatMoney(selectedTotal, '')}
                                     </p>
                                 </div>
+                                <label className="flex items-center gap-3 text-sm">
+                                    <Checkbox
+                                        checked={includeOpenPositions}
+                                        onCheckedChange={(checked) =>
+                                            toggleOpenPositions(
+                                                checked === true,
+                                            )
+                                        }
+                                    />
+                                    <span>Inkludkan Posisi Terbuka</span>
+                                </label>
                                 <div className="max-h-96 overflow-auto rounded-lg border">
                                     <Table>
                                         <TableHeader className="sticky top-0 bg-muted">
@@ -511,7 +565,9 @@ export default function AnalysisGroupShow({
                                             {availableTransactions?.data?.map(
                                                 (transaction) => (
                                                     <TableRow
-                                                        key={transaction.id}
+                                                        key={
+                                                            transaction.selection_id
+                                                        }
                                                         className={
                                                             transaction.is_analyzed
                                                                 ? 'cursor-pointer opacity-60'
@@ -530,9 +586,14 @@ export default function AnalysisGroupShow({
                                                                 <Lock className="size-4 text-muted-foreground" />
                                                             ) : (
                                                                 <Checkbox
-                                                                    checked={selectedUuids.includes(
-                                                                        transaction.uuid,
-                                                                    )}
+                                                                    checked={
+                                                                        selectedUuids.includes(
+                                                                            transaction.uuid,
+                                                                        ) ||
+                                                                        selectedOpenPositionUuids.includes(
+                                                                            transaction.uuid,
+                                                                        )
+                                                                    }
                                                                     onCheckedChange={() =>
                                                                         toggle(
                                                                             transaction,
@@ -578,7 +639,7 @@ export default function AnalysisGroupShow({
                                                             <Badge variant="outline">
                                                                 {transaction.is_analyzed
                                                                     ? 'Terkunci'
-                                                                    : 'Tersedia'}
+                                                                    : transaction.source_label}
                                                             </Badge>
                                                         </TableCell>
                                                     </TableRow>
@@ -598,7 +659,9 @@ export default function AnalysisGroupShow({
                                         onClick={attacher}
                                         disabled={
                                             processing ||
-                                            selectedUuids.length === 0
+                                            (selectedUuids.length === 0 &&
+                                                selectedOpenPositionUuids.length ===
+                                                    0)
                                         }
                                     >
                                         {processing && (

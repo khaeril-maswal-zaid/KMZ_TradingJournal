@@ -13,7 +13,7 @@ class AnalysisGroupSelectableItemService
     /**
      * @return Collection<int, Transaction|OpenPosition>
      */
-    public function forNewGroup(): Collection
+    public function forNewGroup(bool $includeOpenPositions = false): Collection
     {
         $userId =  Auth::id();
         $transactions = Transaction::query()
@@ -22,13 +22,15 @@ class AnalysisGroupSelectableItemService
             ->latest('executed_at')
             ->get();
 
-        return $this->mergeWithOpenPositions($transactions, $userId);
+        return $includeOpenPositions
+            ? $this->mergeWithOpenPositions($transactions, $userId)
+            : $transactions;
     }
 
     /**
      * @return Collection<int, Transaction|OpenPosition>
      */
-    public function forExistingGroup(AnalysisGroup $analysisGroup): Collection
+    public function forExistingGroup(AnalysisGroup $analysisGroup, bool $includeOpenPositions = false): Collection
     {
         $transactions = Transaction::query()
             ->where('user_id', $analysisGroup->user_id)
@@ -36,7 +38,9 @@ class AnalysisGroupSelectableItemService
             ->latest('executed_at')
             ->get();
 
-        return $this->mergeWithOpenPositions($transactions, $analysisGroup->user_id, $analysisGroup);
+        return $includeOpenPositions
+            ? $this->mergeWithOpenPositions($transactions, $analysisGroup->user_id, $analysisGroup)
+            : $transactions;
     }
 
     /**

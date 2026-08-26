@@ -24,6 +24,8 @@ class AnalysisGroupController extends Controller
 {
     public function index(AnalysisGroupSelectableItemService $selectableItems): Response
     {
+        $includeOpenPositions = request()->boolean('include_open_positions');
+
         return Inertia::render('analysis-groups/index', [
             'groups' => AnalysisGroupResource::collection(
                 AnalysisGroup::query()
@@ -34,8 +36,9 @@ class AnalysisGroupController extends Controller
             ),
 
             'availableTransactions' => SelectableAnalysisItemResource::collection(
-                $selectableItems->forNewGroup()
+                $selectableItems->forNewGroup($includeOpenPositions)
             ),
+            'includeOpenPositions' => $includeOpenPositions,
         ]);
     }
 
@@ -78,6 +81,8 @@ class AnalysisGroupController extends Controller
 
     public function show(AnalysisGroup $analysisGroup, AnalysisGroupCalculationService $calculator, AnalysisGroupSelectableItemService $selectableItems): Response
     {
+        $includeOpenPositions = request()->boolean('include_open_positions');
+
         $analysisGroup->load([
             'transactions' => fn($query) => $query->orderBy('executed_at'),
             'openPositionAllocations.openPosition',
@@ -92,8 +97,9 @@ class AnalysisGroupController extends Controller
             'sellTransactions' => TransactionResource::collection($sellTransactions),
             'sellPlannerSummary' => $calculator->sellPlannerSummary($buyTransactions, $analysisGroup->openPositionAllocations),
             'availableTransactions' => SelectableAnalysisItemResource::collection(
-                $selectableItems->forExistingGroup($analysisGroup)
+                $selectableItems->forExistingGroup($analysisGroup, $includeOpenPositions)
             ),
+            'includeOpenPositions' => $includeOpenPositions,
         ]);
     }
 

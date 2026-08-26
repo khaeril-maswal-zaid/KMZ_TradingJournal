@@ -40,17 +40,19 @@ import type {
     AnalysisGroup,
     Paginated,
     ResourceCollection,
-    Transaction,
+    SelectableAnalysisItem,
 } from '@/types';
 
 type Props = {
     groups: Paginated<AnalysisGroup>;
-    availableTransactions: ResourceCollection<Transaction>;
+    availableTransactions: ResourceCollection<SelectableAnalysisItem>;
+    includeOpenPositions: boolean;
 };
 
 export default function AnalysisGroupsIndex({
     groups,
     availableTransactions,
+    includeOpenPositions: initialIncludeOpenPositions,
 }: Props) {
     const [open, setOpen] = useState(false);
     const [processing, setProcessing] = useState(false);
@@ -62,6 +64,27 @@ export default function AnalysisGroupsIndex({
     const [selectedOpenPositions, setSelectedOpenPositions] = useState<
         string[]
     >([]);
+    const [includeOpenPositions, setIncludeOpenPositions] = useState(
+        initialIncludeOpenPositions,
+    );
+
+    const toggleOpenPositions = (enabled: boolean): void => {
+        setIncludeOpenPositions(enabled);
+
+        if (!enabled) {
+            setSelectedOpenPositions([]);
+        }
+
+        router.get(
+            index.url(),
+            { include_open_positions: enabled ? 1 : undefined },
+            {
+                only: ['availableTransactions'],
+                preserveState: true,
+                preserveScroll: true,
+            },
+        );
+    };
 
     const toggleTransaction = (uuid: string, source?: string): void => {
         if (source == 'TRANSACTION') {
@@ -135,6 +158,16 @@ export default function AnalysisGroupsIndex({
                                 </DialogDescription>
                             </DialogHeader>
 
+                            <label className="flex items-center gap-3 text-sm">
+                                <Checkbox
+                                    checked={includeOpenPositions}
+                                    onCheckedChange={(checked) =>
+                                        toggleOpenPositions(checked === true)
+                                    }
+                                />
+                                <span>Inkludkan Posisi Terbuka</span>
+                            </label>
+
                             <div className="max-h-72 overflow-auto rounded-lg border">
                                 <Table>
                                     <TableHeader className="sticky top-0 bg-muted">
@@ -155,7 +188,7 @@ export default function AnalysisGroupsIndex({
                                         0 ? (
                                             <TableRow>
                                                 <TableCell
-                                                    colSpan={5}
+                                                    colSpan={7}
                                                     className="h-24 text-center text-muted-foreground"
                                                 >
                                                     Tidak ada transaksi
